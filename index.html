@@ -1,0 +1,2171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lambeijo · Tudo que seu melhor amigo merece</title>
+<meta name="description" content="Lambeijo Pet Shop: camas, brinquedos, ração premium e acessórios escolhidos com carinho. Entrega em 24h e frete grátis acima de R$ 150.">
+<meta name="theme-color" content="#FFF6EC">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cg fill='%23FF7A3D'%3E%3Cpath d='M32 58c-9.5 0-17-5-17-12.5C15 37 23 28 32 28s17 9 17 17.5C49 53 41.5 58 32 58z'/%3E%3Cellipse cx='13' cy='27' rx='5.5' ry='7.5' transform='rotate(-22 13 27)'/%3E%3Cellipse cx='24' cy='14' rx='6' ry='8'/%3E%3Cellipse cx='40' cy='14' rx='6' ry='8'/%3E%3Cellipse cx='51' cy='27' rx='5.5' ry='7.5' transform='rotate(22 51 27)'/%3E%3C/g%3E%3C/svg%3E">
+
+<!-- Fontes: Fredoka (display arredondada) + Inter (texto) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- GSAP + ScrollTrigger + Lenis (scripts clássicos, expõem globais) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" defer></script>
+
+<!-- Three.js via import map (ES modules) -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+  }
+}
+</script>
+
+<style>
+/* =========================================================================
+   1. TOKENS
+   ========================================================================= */
+:root{
+  --cream:#FFF6EC;
+  --cream-2:#FCEBD9;
+  --orange:#FF7A3D;
+  --orange-ink:#C94A12;      /* laranja escurecido p/ texto (contraste AA em títulos) */
+  --petrol:#1F4E5F;
+  --petrol-deep:#123540;
+  --ink:#173C48;
+  --ink-soft:#3F6470;
+  --pink:#FFC2D1;
+  --pink-2:#FF9DB6;
+  --butter:#FFE6A8;
+  --mint:#CDEDE2;
+  --wa:#25D366;
+
+  --r-sm:14px; --r-md:22px; --r-lg:32px; --r-xl:48px;
+  --shadow-soft:0 24px 60px -24px rgba(31,78,95,.35), 0 8px 18px -10px rgba(31,78,95,.22);
+  --shadow-pop:0 18px 40px -14px rgba(255,122,61,.55);
+  --font-display:"Fredoka", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --font-body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --gutter:clamp(16px, 4.5vw, 64px);
+}
+
+/* =========================================================================
+   2. BASE
+   ========================================================================= */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--cream); color:var(--ink);
+  font-family:var(--font-body); font-size:17px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img,svg,canvas{display:block}
+a{color:inherit}
+h1,h2,h3{font-family:var(--font-display); font-weight:600; line-height:1; margin:0; letter-spacing:-.015em}
+p{margin:0}
+ul{margin:0; padding:0; list-style:none}
+button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer}
+::selection{background:var(--orange); color:#fff}
+:focus-visible{outline:3px solid var(--orange); outline-offset:3px; border-radius:10px}
+.sr-only{position:absolute!important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
+.skip-link{position:fixed; left:16px; top:-60px; z-index:10001; background:var(--petrol); color:#fff; padding:10px 16px; border-radius:12px; text-decoration:none; transition:top .2s}
+.skip-link:focus{top:16px}
+
+/* Lenis (scroll suave) */
+html.lenis, html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  font:600 13px/1 var(--font-body); letter-spacing:.14em; text-transform:uppercase; color:var(--orange-ink);
+}
+.eyebrow::before{content:""; width:8px; height:8px; border-radius:50%; background:currentColor; box-shadow:0 0 0 4px rgba(255,122,61,.18)}
+
+/* Botões */
+.btn{
+  --bg:var(--petrol); --fg:#fff;
+  position:relative; display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  min-height:54px; padding:0 28px; border-radius:999px;
+  background:var(--bg); color:var(--fg); text-decoration:none;
+  font:600 16px/1 var(--font-display); letter-spacing:.01em;
+  box-shadow:var(--shadow-soft);
+  transition:background-color .3s, box-shadow .3s, color .3s;
+  will-change:transform;
+}
+.btn .btn-label{display:inline-flex; align-items:center; gap:10px; pointer-events:none}
+.btn svg{width:20px; height:20px}
+.btn-primary{--bg:var(--orange); --fg:#2A1308; box-shadow:var(--shadow-pop)}
+.btn-primary:hover{--bg:#FF8B55}
+.btn-dark{--bg:var(--petrol)}
+.btn-dark:hover{--bg:var(--petrol-deep)}
+.btn-ghost{--bg:rgba(255,255,255,.6); --fg:var(--ink); box-shadow:inset 0 0 0 1.5px rgba(31,78,95,.18); backdrop-filter:blur(8px)}
+.btn-ghost:hover{--bg:#fff}
+.btn-wa{--bg:var(--wa); --fg:#063B1C}
+.btn-sm{min-height:42px; padding:0 18px; font-size:15px}
+.btn-xl{min-height:76px; padding:0 46px; font-size:22px}
+
+/* =========================================================================
+   3. LOADER
+   ========================================================================= */
+#loader{
+  position:fixed; inset:0; z-index:10000; display:grid; place-items:center;
+  background:var(--cream); color:var(--petrol);
+}
+.loader-box{display:grid; justify-items:center; gap:18px}
+.loader-paw{width:96px; height:96px; overflow:visible}
+.loader-paw .toe, .loader-paw .pad{transform-box:fill-box; transform-origin:center; fill:var(--orange)}
+.loader-paw .toe{animation:toe 1.1s var(--ease-spring) infinite}
+.loader-paw .toe:nth-of-type(2){animation-delay:.12s}
+.loader-paw .toe:nth-of-type(3){animation-delay:.24s}
+.loader-paw .toe:nth-of-type(4){animation-delay:.36s}
+.loader-paw .pad{animation:pad 1.1s ease-in-out infinite}
+@keyframes toe{0%,60%,100%{transform:translateY(0) scale(1)} 30%{transform:translateY(-7px) scale(1.15)}}
+@keyframes pad{0%,100%{transform:scale(1)} 50%{transform:scale(.94)}}
+.loader-pct{font:600 56px/1 var(--font-display); font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.loader-msg{font-size:14px; color:var(--ink-soft); min-height:1.6em}
+.loader-bar{width:180px; height:6px; border-radius:6px; background:rgba(31,78,95,.12); overflow:hidden}
+.loader-bar i{display:block; height:100%; width:100%; background:linear-gradient(90deg,var(--orange),var(--pink-2)); transform-origin:0 50%; transform:scaleX(0)}
+
+/* =========================================================================
+   4. CURSOR PATINHA, PROGRESSO, NAV
+   ========================================================================= */
+#cursor{
+  position:fixed; left:0; top:0; z-index:9999; pointer-events:none;
+  width:34px; height:34px; margin:-17px 0 0 -17px; opacity:0;
+  transition:opacity .3s;
+}
+#cursor .cursor-inner{width:100%; height:100%; transition:transform .35s var(--ease-spring)}
+#cursor svg{width:100%; height:100%; fill:var(--orange); stroke:var(--cream); stroke-width:3; paint-order:stroke; filter:drop-shadow(0 4px 8px rgba(31,78,95,.3)); transition:fill .25s}
+#cursor.is-hover .cursor-inner{transform:scale(1.75) rotate(-12deg)}
+#cursor.is-down .cursor-inner{transform:scale(.8)}
+#cursor.is-hover.is-down .cursor-inner{transform:scale(1.45) rotate(-12deg)}
+#cursor.on-orange svg{fill:var(--petrol)}
+html.has-cursor #cursor{opacity:1}
+html.has-cursor, html.has-cursor *{cursor:none!important}
+
+#progress{
+  position:fixed; inset:0 0 auto 0; height:3px; z-index:60; pointer-events:none;
+  background:linear-gradient(90deg,var(--orange),var(--pink-2));
+  transform-origin:0 50%; transform:scaleX(0);
+}
+
+.nav{
+  position:fixed; z-index:50; top:14px; left:var(--gutter); right:var(--gutter);
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+  height:64px; padding:0 10px 0 20px; border-radius:999px;
+  transition:background-color .45s, box-shadow .45s, transform .6s var(--ease-out), backdrop-filter .45s;
+}
+.nav.is-scrolled{
+  background:rgba(255,246,236,.66);
+  -webkit-backdrop-filter:blur(18px) saturate(1.5); backdrop-filter:blur(18px) saturate(1.5);
+  box-shadow:0 10px 30px -18px rgba(31,78,95,.45), inset 0 0 0 1px rgba(255,255,255,.55);
+}
+.nav.is-hidden{transform:translateY(calc(-100% - 20px))}
+.logo{display:inline-flex; align-items:center; gap:10px; text-decoration:none; color:var(--petrol)}
+.logo-mark{display:grid; place-items:center; width:40px; height:40px; border-radius:14px; background:var(--orange); transform:rotate(-8deg); transition:transform .5s var(--ease-spring)}
+.logo:hover .logo-mark{transform:rotate(8deg) scale(1.06)}
+.logo-mark svg{width:24px; height:24px; fill:var(--cream)}
+.logo-word{font:700 25px/1 var(--font-display); letter-spacing:-.02em}
+.nav-links{display:flex; gap:6px}
+.nav-links a{
+  display:block; padding:10px 14px; border-radius:999px; text-decoration:none;
+  font:500 15px/1 var(--font-body); color:var(--ink); transition:background-color .25s;
+}
+.nav-links a:hover{background:rgba(31,78,95,.08)}
+
+/* =========================================================================
+   5. CANVAS 3D PRINCIPAL (fixo atrás de hero → travessia → produtos)
+   ========================================================================= */
+#webgl{position:fixed; inset:0; width:100%; height:100%; z-index:0; outline:none}
+.scene-fade{position:fixed; inset:0; z-index:0; background:var(--cream); opacity:0; pointer-events:none}
+/* Fallback quando não há WebGL: fundo em mesh gradient via CSS */
+html.no-webgl .scene-zone{background:
+  radial-gradient(40% 50% at 80% 30%, #FFD3B8 0%, transparent 70%),
+  radial-gradient(40% 50% at 20% 80%, var(--pink) 0%, transparent 70%), var(--cream)}
+main{position:relative; z-index:1}
+
+/* =========================================================================
+   6. HERO
+   ========================================================================= */
+.hero{
+  position:relative; min-height:100svh; display:flex; align-items:center;
+  padding:120px var(--gutter) 90px;
+}
+.hero-inner{max-width:min(660px, 50vw)}
+.hero h1{
+  margin:22px 0 22px;
+  font-size:clamp(46px, 7vw, 116px); line-height:.94; font-weight:600; color:var(--petrol);
+  text-wrap:balance;
+}
+.hero h1 em{font-style:normal; color:var(--orange-ink)}
+.hero .lead{font-size:clamp(17px, 1.35vw, 20px); color:var(--ink-soft); max-width:46ch}
+.hero-actions{display:flex; flex-wrap:wrap; gap:14px; margin-top:34px}
+.hero-trust{display:flex; align-items:center; gap:14px; margin-top:34px; font-size:14px; color:var(--ink-soft)}
+.avatars{display:flex}
+.avatars span{width:34px; height:34px; border-radius:50%; border:3px solid var(--cream); margin-left:-10px; display:grid; place-items:center; font-size:16px}
+.avatars span:first-child{margin-left:0}
+.stars{color:#F5A524; letter-spacing:2px}
+.scroll-hint{
+  position:absolute; left:50%; bottom:28px; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  font:500 12px/1 var(--font-body); letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft);
+}
+.scroll-hint i{width:24px; height:38px; border-radius:14px; border:2px solid currentColor; position:relative}
+.scroll-hint i::after{content:""; position:absolute; left:50%; top:7px; width:4px; height:8px; margin-left:-2px; border-radius:2px; background:var(--orange); animation:wheel 1.8s var(--ease-out) infinite}
+@keyframes wheel{0%{transform:translateY(0); opacity:1} 80%,100%{transform:translateY(12px); opacity:0}}
+
+/* Texto dividido letra a letra / palavra a palavra */
+.split .w{display:inline-block; overflow:hidden; vertical-align:top; padding:.08em .03em .12em; margin:-.08em -.03em -.12em}
+.split .c, .split .wi{display:inline-block; will-change:transform}
+
+/* =========================================================================
+   7. TRAVESSIA (dolly da câmera)
+   ========================================================================= */
+.travessia{position:relative; height:150vh}
+.travessia-sticky{position:sticky; top:0; height:100vh; display:grid; place-items:center; padding:0 var(--gutter)}
+.travessia p{
+  max-width:20ch; text-align:center;
+  font:600 clamp(34px, 5.4vw, 84px)/1.02 var(--font-display); letter-spacing:-.02em; color:var(--petrol);
+  text-shadow:0 0 40px rgba(255,246,236,.9), 0 0 12px rgba(255,246,236,.8);
+}
+.travessia p .wi{opacity:.14}
+
+/* =========================================================================
+   8. PRODUTOS (pinned, estilo Apple)
+   ========================================================================= */
+.products{position:relative; height:100vh; height:100svh; overflow:hidden}
+.products-ui{
+  position:absolute; left:var(--gutter); top:50%; transform:translateY(-50%);
+  width:min(470px, 40vw);
+}
+.products-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:26px}
+.products-count{font:600 15px/1 var(--font-display); color:var(--ink-soft); font-variant-numeric:tabular-nums}
+.products-count b{color:var(--petrol); font-size:22px}
+.product-slides{display:grid}
+.product-slide{grid-area:1/1}
+.product-slide .ps{opacity:0; transform:translateY(34px); transition:opacity .35s, transform .45s var(--ease-out)}
+.product-slide.is-before .ps{transform:translateY(-34px)}
+.product-slide.is-active .ps{opacity:1; transform:none; transition:opacity .7s var(--ease-out), transform .9s var(--ease-out); transition-delay:calc(var(--i) * 70ms + 120ms)}
+.ps-tag{display:inline-block; padding:7px 12px; border-radius:999px; background:rgba(31,78,95,.08); font:600 12px/1 var(--font-body); letter-spacing:.12em; text-transform:uppercase; color:var(--petrol)}
+.product-slide h3{margin:16px 0 14px; font-size:clamp(38px, 4.4vw, 68px); line-height:.95; color:var(--petrol)}
+.ps-benefit{color:var(--ink-soft); font-size:17px; max-width:40ch}
+.ps-price{display:flex; align-items:baseline; gap:12px; margin:22px 0 6px; flex-wrap:wrap}
+.ps-price strong{font:600 46px/1 var(--font-display); color:var(--orange-ink); letter-spacing:-.02em}
+.ps-price span{font-size:14px; color:var(--ink-soft)}
+.ps-swatches{display:flex; align-items:center; gap:10px; margin:18px 0 24px; font-size:14px; color:var(--ink-soft)}
+.ps-swatches .label b{color:var(--ink); font-weight:600}
+.swatch{width:30px; height:30px; border-radius:50%; background:var(--c); box-shadow:inset 0 0 0 3px var(--cream), 0 0 0 1.5px rgba(31,78,95,.2); transition:box-shadow .3s, transform .4s var(--ease-spring)}
+.swatch.is-on{box-shadow:inset 0 0 0 3px var(--cream), 0 0 0 2.5px var(--petrol); transform:scale(1.12)}
+.ps-actions{display:flex; gap:10px; flex-wrap:wrap}
+.product-rail{display:flex; gap:8px; margin-top:34px}
+.product-rail span{flex:1; height:4px; border-radius:4px; background:rgba(31,78,95,.14); overflow:hidden}
+.product-rail i{display:block; height:100%; background:var(--orange); transform-origin:0 50%; transform:scaleX(0)}
+.products-hint{position:absolute; left:50%; transform:translateX(-50%); bottom:32px; white-space:nowrap; font:500 13px/1 var(--font-body); color:var(--ink-soft); display:flex; align-items:center; gap:8px}
+.products-hint svg{width:18px; height:18px; animation:spin 3s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* =========================================================================
+   9. SEÇÕES SÓLIDAS (cobrem o canvas fixo)
+   ========================================================================= */
+.sheet{position:relative; background:var(--cream); border-radius:var(--r-xl) var(--r-xl) 0 0; margin-top:-48px; box-shadow:0 -30px 60px -30px rgba(31,78,95,.25)}
+.section{position:relative; padding:clamp(80px, 11vw, 150px) var(--gutter)}
+.section-head{display:flex; align-items:flex-end; justify-content:space-between; gap:28px; margin-bottom:clamp(36px, 5vw, 64px); flex-wrap:wrap}
+.section-head h2{font-size:clamp(38px, 5.2vw, 80px); color:var(--petrol); max-width:14ch; margin-top:16px; text-wrap:balance}
+.section-head p{max-width:40ch; color:var(--ink-soft)}
+
+/* Mesh gradient animado (blobs desfocados que se movem só com transform) */
+.mesh{position:absolute; inset:0; overflow:hidden; pointer-events:none; border-radius:inherit}
+.mesh i{position:absolute; width:55vmax; height:55vmax; border-radius:50%; filter:blur(70px); opacity:.55; will-change:transform}
+.mesh i:nth-child(1){background:var(--pink); left:-15vmax; top:-20vmax; animation:blob1 22s ease-in-out infinite alternate}
+.mesh i:nth-child(2){background:#FFD6BD; right:-18vmax; top:10%; animation:blob2 26s ease-in-out infinite alternate}
+.mesh i:nth-child(3){background:var(--mint); left:25%; bottom:-30vmax; animation:blob3 30s ease-in-out infinite alternate}
+@keyframes blob1{to{transform:translate(18vmax, 14vmax) scale(1.15)}}
+@keyframes blob2{to{transform:translate(-16vmax, 18vmax) scale(.9)}}
+@keyframes blob3{to{transform:translate(12vmax, -14vmax) scale(1.2)}}
+
+/* --- Categorias --- */
+.cat-grid{position:relative; display:grid; grid-template-columns:repeat(6, 1fr); gap:clamp(14px, 1.6vw, 22px); perspective:1200px}
+.cat-card{
+  --mx:50%; --my:50%;
+  position:relative; grid-column:span 2; min-height:300px; padding:28px;
+  display:flex; flex-direction:column; justify-content:space-between;
+  border-radius:var(--r-lg); background:var(--bg); text-decoration:none; color:var(--ink);
+  box-shadow:var(--shadow-soft); transform-style:preserve-3d; will-change:transform; isolation:isolate;
+}
+.cat-card:nth-child(1), .cat-card:nth-child(2){grid-column:span 3; min-height:360px}
+.cat-card::after{
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:2;
+  background:radial-gradient(420px circle at var(--mx) var(--my), rgba(255,255,255,.75), rgba(255,255,255,0) 45%);
+  opacity:0; transition:opacity .4s; mix-blend-mode:soft-light;
+}
+.cat-card::before{
+  content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:1;
+  background:radial-gradient(260px circle at var(--mx) var(--my), rgba(255,255,255,.55), transparent 60%);
+  opacity:0; transition:opacity .4s;
+}
+.cat-card:hover::after, .cat-card:hover::before, .cat-card:focus-visible::before{opacity:1}
+.cat-icon{width:clamp(110px, 12vw, 150px); height:auto; transform:translateZ(50px); align-self:flex-end; overflow:visible}
+.cat-card:nth-child(1) .cat-icon, .cat-card:nth-child(2) .cat-icon{width:clamp(140px, 15vw, 190px)}
+.cat-body{transform:translateZ(30px); position:relative; z-index:3}
+.cat-body h3{font-size:clamp(28px, 2.6vw, 40px); color:var(--petrol)}
+.cat-body p{margin-top:8px; font-size:15px; color:var(--ink-soft)}
+.cat-arrow{position:absolute; top:24px; left:24px; width:46px; height:46px; border-radius:50%; background:rgba(255,255,255,.7); display:grid; place-items:center; transform:translateZ(40px); transition:background-color .3s, transform .5s var(--ease-spring)}
+.cat-arrow svg{width:20px; height:20px; stroke:var(--petrol); fill:none; stroke-width:2.4; transition:transform .5s var(--ease-spring)}
+.cat-card:hover .cat-arrow{background:var(--petrol)}
+.cat-card:hover .cat-arrow svg{stroke:#fff; transform:rotate(-45deg)}
+/* microanimações dos ícones */
+.ic-ear-l, .ic-ear-r, .ic-tongue, .ic-tail, .ic-whisk, .ic-ball, .ic-ballshadow, .ic-bubble, .ic-bottle, .ic-tag{transform-box:fill-box}
+.ic-ear-l{transform-origin:80% 10%} .ic-ear-r{transform-origin:20% 10%}
+.cat-card:hover .ic-ear-l{animation:earL .6s ease-in-out 2}
+.cat-card:hover .ic-ear-r{animation:earR .6s ease-in-out 2}
+.cat-card:hover .ic-tongue{animation:tongue .5s ease-in-out 3; transform-origin:50% 0}
+@keyframes earL{50%{transform:rotate(14deg)}}
+@keyframes earR{50%{transform:rotate(-14deg)}}
+@keyframes tongue{50%{transform:scaleY(1.3)}}
+.ic-tail{transform-origin:0% 100%}
+.cat-card:hover .ic-tail{animation:tail .8s ease-in-out infinite alternate}
+@keyframes tail{from{transform:rotate(-10deg)} to{transform:rotate(16deg)}}
+.cat-card:hover .ic-whisk{animation:whisk .3s ease-in-out 4 alternate; transform-origin:50% 50%}
+@keyframes whisk{to{transform:rotate(6deg)}}
+.ic-ball{transform-origin:50% 100%}
+.cat-card:hover .ic-ball{animation:bounce .7s cubic-bezier(.3,0,.7,1) infinite}
+.cat-card:hover .ic-ballshadow{animation:bshadow .7s cubic-bezier(.3,0,.7,1) infinite; transform-origin:50% 50%}
+@keyframes bounce{0%,100%{transform:translateY(0) scale(1.08,.92)} 50%{transform:translateY(-34px) scale(.96,1.04)}}
+@keyframes bshadow{0%,100%{transform:scale(1); opacity:.25} 50%{transform:scale(.55); opacity:.12}}
+.ic-bubble{transform-origin:50% 50%; opacity:0}
+.cat-card:hover .ic-bubble{animation:bubble 1.6s ease-out infinite}
+.cat-card:hover .ic-bubble:nth-of-type(2){animation-delay:.4s}
+.cat-card:hover .ic-bubble:nth-of-type(3){animation-delay:.8s}
+@keyframes bubble{0%{transform:translateY(0) scale(.4); opacity:0} 20%{opacity:1} 100%{transform:translateY(-46px) scale(1.1); opacity:0}}
+.ic-bottle{transform-origin:50% 100%}
+.cat-card:hover .ic-bottle{animation:squeeze .8s var(--ease-spring) 1}
+@keyframes squeeze{40%{transform:scale(1.06,.92)}}
+.ic-tag{transform-origin:50% 0%}
+.cat-card:hover .ic-tag{animation:swing 1.2s ease-in-out infinite}
+@keyframes swing{0%,100%{transform:rotate(-18deg)} 50%{transform:rotate(18deg)}}
+
+/* --- Por que escolher a gente --- */
+.why{background:var(--petrol); color:var(--cream); overflow:hidden}
+.why .mesh i{opacity:.28}
+.why .mesh i:nth-child(1){background:var(--orange)}
+.why .mesh i:nth-child(2){background:var(--pink-2)}
+.why .mesh i:nth-child(3){background:#3E8DA3}
+.why .eyebrow{color:#FFB892}
+.why .eyebrow::before{box-shadow:0 0 0 4px rgba(255,184,146,.2)}
+.why .section-head h2{color:var(--cream)}
+.why .section-head p{color:rgba(255,246,236,.78)}
+.stats{position:relative; display:grid; grid-template-columns:repeat(4, 1fr); gap:clamp(14px, 1.6vw, 22px)}
+.stat{
+  position:relative; padding:30px 26px 32px; border-radius:var(--r-lg);
+  background:rgba(255,246,236,.07); box-shadow:inset 0 0 0 1px rgba(255,246,236,.14);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+.stat-ic{width:58px; height:58px; border-radius:18px; display:grid; place-items:center; background:var(--orange); margin-bottom:42px; transition:transform .6s var(--ease-spring)}
+.stat:hover .stat-ic{transform:rotate(-10deg) scale(1.08)}
+.stat-ic svg{width:30px; height:30px; stroke:#2A1308; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round}
+.stat:nth-child(2) .stat-ic{background:var(--pink)}
+.stat:nth-child(3) .stat-ic{background:var(--butter)}
+.stat:nth-child(4) .stat-ic{background:var(--mint)}
+.stat-label{font-size:14px; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,246,236,.75); font-weight:600}
+.stat-num{display:block; margin:8px 0 12px; font:600 clamp(44px, 4.6vw, 70px)/1 var(--font-display); letter-spacing:-.03em; font-variant-numeric:tabular-nums; color:#fff}
+.stat-desc{font-size:15px; color:rgba(255,246,236,.78)}
+
+/* Marquee */
+.marquee{position:relative; overflow:hidden; background:var(--orange); color:#2A1308; padding:20px 0; transform:rotate(-1.6deg); margin:-14px -2vw; z-index:2; box-shadow:0 18px 40px -20px rgba(31,78,95,.5)}
+.marquee-track{display:flex; width:max-content; animation:marquee 32s linear infinite}
+.marquee-track span{display:inline-flex; align-items:center; gap:28px; padding-right:28px; font:600 clamp(22px, 2.4vw, 32px)/1 var(--font-display); white-space:nowrap}
+.marquee-track svg{width:26px; height:26px; fill:#2A1308}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* --- Depoimentos --- */
+.testimonials{background:linear-gradient(180deg, #FFEDF1 0%, var(--cream) 100%); overflow:hidden}
+.carousel-controls{display:flex; gap:10px}
+.circle-btn{width:58px; height:58px; border-radius:50%; display:grid; place-items:center; background:#fff; box-shadow:var(--shadow-soft); transition:background-color .3s, transform .4s var(--ease-spring)}
+.circle-btn:hover{background:var(--petrol)}
+.circle-btn:hover svg{stroke:#fff}
+.circle-btn:active{transform:scale(.92)}
+.circle-btn:disabled{opacity:.35; pointer-events:none}
+.circle-btn svg{width:22px; height:22px; fill:none; stroke:var(--petrol); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round}
+.carousel{position:relative; touch-action:pan-y; user-select:none; -webkit-user-select:none; cursor:grab}
+.carousel:active{cursor:grabbing}
+.carousel-track{display:flex; gap:clamp(14px, 1.6vw, 22px); will-change:transform}
+.t-card{
+  flex:0 0 clamp(290px, 30vw, 420px); padding:26px; border-radius:var(--r-lg);
+  background:#fff; box-shadow:var(--shadow-soft); display:flex; flex-direction:column; gap:18px;
+}
+.t-portrait{aspect-ratio:4/3; border-radius:var(--r-md); overflow:hidden}
+.t-portrait svg{width:100%; height:100%; pointer-events:none}
+.t-card blockquote{margin:0; font-size:17px; line-height:1.55; color:var(--ink)}
+.t-meta{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:auto}
+.t-meta strong{display:block; font:600 18px/1.2 var(--font-display); color:var(--petrol)}
+.t-meta small{font-size:13px; color:var(--ink-soft)}
+.carousel-progress{margin-top:34px; height:4px; border-radius:4px; background:rgba(31,78,95,.12); overflow:hidden; max-width:320px}
+.carousel-progress i{display:block; height:100%; background:var(--petrol); transform-origin:0 50%; transform:scaleX(.2)}
+
+/* --- CTA final --- */
+.cta{
+  position:relative; min-height:100vh; min-height:100svh; display:grid; place-items:center; text-align:center; overflow:hidden;
+  padding:120px var(--gutter);
+  background:linear-gradient(120deg, #FF7A3D, #FF6F86, #FFB25E, #FF7A3D);
+  background-size:300% 300%; animation:ctaGrad 14s ease-in-out infinite;
+}
+@keyframes ctaGrad{0%,100%{background-position:0% 50%} 50%{background-position:100% 50%}}
+#paws{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
+.cta-inner{position:relative; z-index:2; max-width:920px; display:grid; justify-items:center; gap:24px}
+.cta .eyebrow{color:#2A1308}
+.cta .eyebrow::before{box-shadow:0 0 0 4px rgba(42,19,8,.15)}
+.cta h2{font-size:clamp(48px, 8vw, 128px); line-height:.92; color:#10303A; text-wrap:balance}
+.cta p{font-size:clamp(17px, 1.5vw, 21px); color:#1C2A2E; max-width:44ch}
+.cta p b{background:rgba(255,246,236,.7); padding:2px 8px; border-radius:8px}
+.cta-actions{display:flex; flex-wrap:wrap; justify-content:center; gap:14px; margin-top:12px}
+.cta .btn-xl{--bg:#10303A; --fg:var(--cream); box-shadow:0 24px 50px -18px rgba(16,48,58,.7)}
+.cta .btn-xl:hover{--bg:#0A222A}
+.cta .btn-wa{--bg:var(--wa); --fg:#063B1C; box-shadow:0 24px 50px -18px rgba(7,94,46,.6)}
+.cta .btn-wa:hover{--bg:#3BE07A}
+.cta-hint{font-size:13px; color:#2A1308; opacity:.75}
+
+/* --- Rodapé --- */
+.footer{position:relative; z-index:1; background:var(--petrol-deep); color:rgba(255,246,236,.82); padding:clamp(64px, 8vw, 110px) var(--gutter) 34px}
+.footer-grid{display:grid; grid-template-columns:1.6fr 1fr 1fr 1.3fr; gap:40px}
+.footer .logo{color:var(--cream)}
+.footer-tag{margin-top:18px; max-width:30ch; font-size:15px}
+.footer h4{margin:0 0 16px; font:600 15px/1 var(--font-display); letter-spacing:.08em; text-transform:uppercase; color:var(--cream)}
+.footer li{font-size:15px}
+.footer li + li{margin-top:10px}
+.footer a{text-decoration:none; font-size:15px; transition:color .2s}
+.footer a:hover{color:#FFB892}
+.socials{display:flex; gap:10px; margin-top:22px}
+.socials a{width:46px; height:46px; border-radius:50%; display:grid; place-items:center; background:rgba(255,246,236,.08); transition:background-color .3s, transform .4s var(--ease-spring)}
+.socials a:hover{background:var(--orange); transform:translateY(-4px)}
+.socials svg{width:20px; height:20px; fill:none; stroke:var(--cream); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.footer-bottom{display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-top:64px; padding-top:26px; border-top:1px solid rgba(255,246,236,.12); font-size:13px; color:rgba(255,246,236,.6)}
+
+/* Botão flutuante WhatsApp */
+.wa-float{
+  position:fixed; right:20px; bottom:20px; z-index:40; width:62px; height:62px; border-radius:50%;
+  display:grid; place-items:center; background:var(--wa); box-shadow:0 14px 30px -10px rgba(7,94,46,.6);
+  transform:scale(0); transition:transform .6s var(--ease-spring);
+}
+.wa-float.is-visible{transform:scale(1)}
+.wa-float:hover{transform:scale(1.08)}
+.wa-float svg{width:32px; height:32px; fill:#fff}
+.wa-float::before{content:""; position:absolute; inset:0; border-radius:50%; background:var(--wa); z-index:-1; animation:ping 2.4s ease-out infinite}
+@keyframes ping{0%{transform:scale(1); opacity:.5} 100%{transform:scale(1.7); opacity:0}}
+
+/* =========================================================================
+   10. RESPONSIVO
+   ========================================================================= */
+@media (max-width: 1100px){
+  .stats{grid-template-columns:repeat(2, 1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width: 900px){
+  body{font-size:16px}
+  .nav{height:58px; top:10px; padding-left:14px}
+  .nav-links{display:none}
+  .logo-word{font-size:22px}
+  .hero{align-items:flex-start; padding-top:104px; min-height:100svh}
+  .hero-inner{max-width:100%}
+  .hero h1{font-size:clamp(40px, 11.5vw, 72px); margin:16px 0}
+  .hero .lead{font-size:16px}
+  .hero-actions{margin-top:22px}
+  .hero-actions .btn{min-height:50px; padding:0 22px}
+  .hero-trust{display:none}
+  .scroll-hint{display:none}
+  .products-ui{
+    left:12px; right:12px; top:auto; bottom:12px; transform:none; width:auto;
+    padding:18px 18px 16px; border-radius:28px;
+    background:rgba(255,246,236,.84); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+    box-shadow:var(--shadow-soft);
+  }
+  .products-head{margin-bottom:10px}
+  .product-slide h3{font-size:30px; margin:10px 0 8px}
+  .ps-benefit{font-size:14px; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .ps-price{margin:12px 0 2px}
+  .ps-price strong{font-size:32px}
+  .ps-swatches{margin:10px 0 14px}
+  .swatch{width:24px; height:24px}
+  .ps-actions .btn{min-height:46px; padding:0 18px; font-size:15px; flex:1}
+  .product-rail{margin-top:14px}
+  .products-hint{display:none}
+  .cta-hint{display:none}
+  .cat-grid{grid-template-columns:1fr 1fr}
+  .cat-card, .cat-card:nth-child(1), .cat-card:nth-child(2){grid-column:span 1; min-height:230px; padding:20px}
+  .cat-card:nth-child(1){grid-column:span 2}
+  .cat-arrow{top:16px; left:16px; width:38px; height:38px}
+  .cat-icon, .cat-card:nth-child(1) .cat-icon, .cat-card:nth-child(2) .cat-icon{width:96px}
+  .cat-card:nth-child(1) .cat-icon{width:130px}
+  .travessia p{font-size:clamp(30px, 9vw, 48px)}
+  .footer-grid{grid-template-columns:1fr}
+  .wa-float{width:56px; height:56px; right:14px; bottom:14px}
+}
+@media (max-width: 560px){
+  .stats{grid-template-columns:1fr}
+  .stat-ic{margin-bottom:22px}
+  .cat-card:nth-child(5){grid-column:span 2}
+  .btn-xl{min-height:64px; padding:0 32px; font-size:19px}
+}
+
+/* =========================================================================
+   11. MOVIMENTO REDUZIDO
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.15s!important; scroll-behavior:auto!important}
+  .marquee-track{animation:none}
+  .mesh i{animation:none}
+  .cta{animation:none; background-position:50% 50%}
+  .travessia p .wi{opacity:1}
+}
+</style>
+</head>
+
+<body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<!-- Sprite SVG reutilizável (patinha) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="paw" viewBox="0 0 64 64">
+    <path d="M32 58c-9.5 0-17-5-17-12.5C15 37 23 28 32 28s17 9 17 17.5C49 53 41.5 58 32 58z"/>
+    <ellipse cx="13" cy="27" rx="5.5" ry="7.5" transform="rotate(-22 13 27)"/>
+    <ellipse cx="24" cy="14" rx="6" ry="8"/>
+    <ellipse cx="40" cy="14" rx="6" ry="8"/>
+    <ellipse cx="51" cy="27" rx="5.5" ry="7.5" transform="rotate(22 51 27)"/>
+  </symbol>
+  <symbol id="wa" viewBox="0 0 32 32">
+    <path d="M16 3C9 3 3.3 8.6 3.3 15.6c0 2.4.7 4.7 1.9 6.7L3 29l6.9-2.2c1.9 1 4 1.6 6.1 1.6 7 0 12.7-5.7 12.7-12.7S23 3 16 3zm0 23.2c-2 0-3.9-.6-5.5-1.6l-.4-.2-4.1 1.3 1.3-4-.3-.4c-1.1-1.7-1.7-3.6-1.7-5.6C5.3 9.8 10.1 5.1 16 5.1s10.6 4.7 10.6 10.6S21.9 26.2 16 26.2zm5.8-7.9c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.6-1.6-1-.9-1.6-1.9-1.8-2.2-.2-.3 0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.6.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.3 1.4 3.5c.2.2 2.4 3.6 5.7 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1.1.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/>
+  </symbol>
+</svg>
+
+<!-- ============ LOADER ============ -->
+<div id="loader" role="status" aria-live="polite" aria-label="Carregando a loja">
+  <div class="loader-box">
+    <svg class="loader-paw" viewBox="0 0 64 64" aria-hidden="true">
+      <ellipse class="toe" cx="13" cy="27" rx="5.5" ry="7.5" transform="rotate(-22 13 27)"/>
+      <ellipse class="toe" cx="24" cy="14" rx="6" ry="8"/>
+      <ellipse class="toe" cx="40" cy="14" rx="6" ry="8"/>
+      <ellipse class="toe" cx="51" cy="27" rx="5.5" ry="7.5" transform="rotate(22 51 27)"/>
+      <path class="pad" d="M32 58c-9.5 0-17-5-17-12.5C15 37 23 28 32 28s17 9 17 17.5C49 53 41.5 58 32 58z"/>
+    </svg>
+    <div class="loader-pct"><span id="loader-num">0</span>%</div>
+    <div class="loader-bar"><i id="loader-bar"></i></div>
+    <p class="loader-msg" id="loader-msg">Separando os petiscos…</p>
+  </div>
+</div>
+
+<!-- ============ CURSOR + PROGRESSO ============ -->
+<div id="cursor" aria-hidden="true"><div class="cursor-inner"><svg viewBox="0 0 64 64"><use href="#paw"/></svg></div></div>
+<div id="progress" aria-hidden="true"></div>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <a class="logo" href="#top" aria-label="Lambeijo, voltar ao início">
+    <span class="logo-mark"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#paw"/></svg></span>
+    <span class="logo-word">lambeijo</span>
+  </a>
+  <nav aria-label="Navegação principal">
+    <ul class="nav-links">
+      <li><a href="#produtos">Produtos</a></li>
+      <li><a href="#categorias">Categorias</a></li>
+      <li><a href="#diferenciais">Diferenciais</a></li>
+      <li><a href="#depoimentos">Depoimentos</a></li>
+    </ul>
+  </nav>
+  <a class="btn btn-primary btn-sm magnetic" href="#" data-buy><span class="btn-label">Comprar</span></a>
+</header>
+
+<!-- Canvas 3D principal (decorativo; descrito no texto do hero) -->
+<canvas id="webgl" aria-hidden="true"></canvas>
+<div class="scene-fade" id="scene-fade" aria-hidden="true"></div>
+
+<main id="conteudo">
+  <div class="scene-zone" id="top">
+    <!-- ============ 1. HERO ============ -->
+    <section class="hero" id="hero" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <span class="eyebrow" data-hero-fade>Pet shop feito com carinho</span>
+        <h1 id="hero-title" data-split="chars">Tudo que seu <em>melhor amigo</em> merece</h1>
+        <p class="lead" data-hero-fade>Camas fofinhas, brinquedos que divertem de verdade, ração premium e acessórios escolhidos a dedo por quem é apaixonado por pets.</p>
+        <p class="sr-only">Ilustração 3D: um cachorrinho caramelo e um gatinho azulado sentados numa almofada, cercados por bolinhas, ossinhos, ração e coleiras flutuando.</p>
+        <div class="hero-actions" data-hero-fade>
+          <a class="btn btn-primary magnetic" href="#produtos" data-cursor><span class="btn-label">Ver produtos
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg></span></a>
+          <a class="btn btn-ghost magnetic" href="#" data-wa target="_blank" rel="noopener"><span class="btn-label">
+            <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><use href="#wa"/></svg>Falar no WhatsApp</span></a>
+        </div>
+        <div class="hero-trust" data-hero-fade>
+          <div class="avatars" aria-hidden="true">
+            <span style="background:#FFD6BD">🐶</span><span style="background:var(--pink)">🐱</span><span style="background:var(--mint)">🐾</span>
+          </div>
+          <div><span class="stars" aria-hidden="true">★★★★★</span> <b>4,9</b> · +10 mil pets felizes</div>
+        </div>
+      </div>
+      <div class="scroll-hint" aria-hidden="true"><i></i>Role para explorar</div>
+    </section>
+
+    <!-- ============ 2. TRAVESSIA (transição cinematográfica) ============ -->
+    <section class="travessia" id="travessia" aria-label="Nossa promessa">
+      <div class="travessia-sticky">
+        <p data-split="words-scrub">Cada caminha, cada brinquedo, cada petisco: escolhidos a dedo para o rabinho não parar de abanar.</p>
+      </div>
+    </section>
+
+    <!-- ============ 3. PRODUTOS EM DESTAQUE (pinned) ============ -->
+    <section class="products" id="produtos" aria-labelledby="produtos-title">
+      <div class="products-ui">
+        <div class="products-head">
+          <span class="eyebrow" id="produtos-title">Destaques da semana</span>
+          <span class="products-count" aria-hidden="true"><b id="p-idx">01</b> / <span id="p-total">04</span></span>
+        </div>
+        <div class="product-slides" id="product-slides"><!-- gerado via JS a partir de PRODUCTS --></div>
+        <div class="product-rail" id="product-rail" aria-hidden="true"></div>
+      </div>
+      <div class="products-hint" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>
+        Role para girar e trocar de cor
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ 4. CATEGORIAS ============ -->
+  <section class="section sheet" id="categorias" aria-labelledby="cat-title">
+    <div class="mesh" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="section-head" style="position:relative">
+      <div>
+        <span class="eyebrow">Vitrine</span>
+        <h2 id="cat-title" data-split="words">Encontre o mimo perfeito</h2>
+      </div>
+      <p data-reveal>Mais de 2.000 produtos selecionados por veterinários e tutores apaixonados. Passe o mouse e brinque com as categorias.</p>
+    </div>
+
+    <div class="cat-grid">
+      <a class="cat-card" href="#" data-buy data-cat="cachorros" style="--bg:#FFE1CF" data-reveal>
+        <span class="cat-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <svg class="cat-icon" viewBox="0 0 120 120" role="img" aria-label="Ícone de cachorro">
+          <g class="ic-ear-l"><ellipse cx="28" cy="50" rx="14" ry="26" fill="#C9773A" transform="rotate(18 28 50)"/></g>
+          <g class="ic-ear-r"><ellipse cx="92" cy="50" rx="14" ry="26" fill="#C9773A" transform="rotate(-18 92 50)"/></g>
+          <circle cx="60" cy="60" r="36" fill="#EFA35C"/>
+          <ellipse cx="60" cy="76" rx="22" ry="17" fill="#FFEBD2"/>
+          <circle cx="46" cy="56" r="5" fill="#2B2422"/><circle cx="74" cy="56" r="5" fill="#2B2422"/>
+          <circle cx="47.6" cy="54.4" r="1.6" fill="#fff"/><circle cx="75.6" cy="54.4" r="1.6" fill="#fff"/>
+          <ellipse cx="60" cy="69" rx="7" ry="5" fill="#2B2422"/>
+          <path class="ic-tongue" d="M55 80c0 8 10 8 10 0z" fill="#FF8FA3"/>
+          <circle cx="36" cy="72" r="5" fill="#FFB3C1" opacity=".8"/><circle cx="84" cy="72" r="5" fill="#FFB3C1" opacity=".8"/>
+        </svg>
+        <div class="cat-body"><h3>Cachorros</h3><p>Camas, petiscos, roupinhas e tudo pro au-au.</p></div>
+      </a>
+
+      <a class="cat-card" href="#" data-buy data-cat="gatos" style="--bg:#FFD9E2" data-reveal>
+        <span class="cat-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <svg class="cat-icon" viewBox="0 0 120 120" role="img" aria-label="Ícone de gato">
+          <path class="ic-tail" d="M92 104c18-2 22-22 12-34" stroke="#5F808F" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M30 40 34 10l22 20z" fill="#7A9AA8"/><path d="M90 40 86 10 64 30z" fill="#7A9AA8"/>
+          <path d="M34 34 36 18l12 11z" fill="#FF9DB6"/><path d="M86 34 84 18 72 29z" fill="#FF9DB6"/>
+          <ellipse cx="60" cy="60" rx="38" ry="33" fill="#7A9AA8"/>
+          <ellipse cx="60" cy="72" rx="18" ry="13" fill="#FFF3E4"/>
+          <ellipse cx="45" cy="56" rx="5.5" ry="6.5" fill="#2B2422"/><ellipse cx="75" cy="56" rx="5.5" ry="6.5" fill="#2B2422"/>
+          <circle cx="46.8" cy="54" r="1.8" fill="#fff"/><circle cx="76.8" cy="54" r="1.8" fill="#fff"/>
+          <path d="M56 66h8l-4 4z" fill="#FF8FA3"/>
+          <g class="ic-whisk" stroke="#2B2422" stroke-width="1.6" stroke-linecap="round">
+            <path d="M40 70 18 66M40 75 19 78M80 70l22-4M80 75l21 3"/>
+          </g>
+        </svg>
+        <div class="cat-body"><h3>Gatos</h3><p>Arranhadores, sachês e brinquedos pros felinos mais exigentes.</p></div>
+      </a>
+
+      <a class="cat-card" href="#" data-buy data-cat="brinquedos" style="--bg:#DCEFF2" data-reveal>
+        <span class="cat-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <svg class="cat-icon" viewBox="0 0 120 120" role="img" aria-label="Ícone de bolinha de brinquedo">
+          <ellipse class="ic-ballshadow" cx="60" cy="106" rx="26" ry="6" fill="#1F4E5F" opacity=".25"/>
+          <g class="ic-ball">
+            <circle cx="60" cy="68" r="32" fill="#FF7A3D"/>
+            <path d="M31 56c18 8 40 8 58 0M33 82c16-6 38-6 54 0" stroke="#FFF6EC" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <circle cx="48" cy="56" r="6" fill="#fff" opacity=".35"/>
+          </g>
+        </svg>
+        <div class="cat-body"><h3>Brinquedos</h3><p>Diversão que gasta energia e estimula a mente.</p></div>
+      </a>
+
+      <a class="cat-card" href="#" data-buy data-cat="higiene" style="--bg:#E3F4EC" data-reveal>
+        <span class="cat-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <svg class="cat-icon" viewBox="0 0 120 120" role="img" aria-label="Ícone de shampoo com bolhas">
+          <circle class="ic-bubble" cx="84" cy="40" r="7" fill="none" stroke="#1F4E5F" stroke-width="2.5"/>
+          <circle class="ic-bubble" cx="96" cy="58" r="5" fill="none" stroke="#1F4E5F" stroke-width="2.5"/>
+          <circle class="ic-bubble" cx="76" cy="58" r="4" fill="none" stroke="#1F4E5F" stroke-width="2.5"/>
+          <g class="ic-bottle">
+            <rect x="48" y="14" width="16" height="12" rx="3" fill="#1F4E5F"/>
+            <path d="M44 26h24v8H44z" fill="#2E6577"/>
+            <rect x="34" y="34" width="44" height="74" rx="14" fill="#7FD1B9"/>
+            <rect x="42" y="56" width="28" height="30" rx="8" fill="#FFF6EC"/>
+            <use href="#paw" x="49" y="62" width="14" height="14" fill="#FF7A3D"/>
+          </g>
+        </svg>
+        <div class="cat-body"><h3>Higiene</h3><p>Banho cheiroso e cuidado gentil com a pele.</p></div>
+      </a>
+
+      <a class="cat-card" href="#" data-buy data-cat="acessorios" style="--bg:#FFF0C9" data-reveal>
+        <span class="cat-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <svg class="cat-icon" viewBox="0 0 120 120" role="img" aria-label="Ícone de coleira com plaquinha">
+          <ellipse cx="60" cy="50" rx="40" ry="20" fill="none" stroke="#1F4E5F" stroke-width="12"/>
+          <rect x="52" y="62" width="16" height="10" rx="3" fill="#F7C548"/>
+          <g class="ic-tag">
+            <path d="M60 70v10" stroke="#B88A1E" stroke-width="3"/>
+            <path d="M60 80c12 0 16 8 16 14 0 8-8 12-16 12s-16-4-16-12c0-6 4-14 16-14z" fill="#F7C548"/>
+            <use href="#paw" x="53" y="86" width="14" height="14" fill="#B88A1E"/>
+          </g>
+        </svg>
+        <div class="cat-body"><h3>Acessórios</h3><p>Coleiras, guias e estilo pra passear.</p></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ 5. POR QUE ESCOLHER A GENTE ============ -->
+  <section class="section why" id="diferenciais" aria-labelledby="why-title">
+    <div class="mesh" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="section-head" style="position:relative">
+      <div>
+        <span class="eyebrow">Por que a Lambeijo</span>
+        <h2 id="why-title" data-split="words">Carinho que dá pra medir</h2>
+      </div>
+      <p data-reveal>A gente trata cada pedido como se fosse pro nosso próprio pet. E os números mostram que dá certo.</p>
+    </div>
+    <ul class="stats">
+      <li class="stat" data-reveal>
+        <div class="stat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.2-9C1.3 8.8 3.4 5 7 5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.6 0 5.7 3.8 4.2 7-2.2 4.6-9.2 9-9.2 9z"/></svg></div>
+        <span class="stat-label">Pets felizes</span>
+        <span class="stat-num" data-count="10000" data-prefix="+" aria-hidden="true">+10.000</span>
+        <span class="sr-only">Mais de 10.000 pets felizes.</span>
+        <p class="stat-desc">Famílias atendidas com carinho em todo o Brasil.</p>
+      </li>
+      <li class="stat" data-reveal>
+        <div class="stat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg></div>
+        <span class="stat-label">Entrega expressa</span>
+        <span class="stat-num" data-count="24" data-suffix="h" aria-hidden="true">24h</span>
+        <span class="sr-only">Entrega em 24 horas.</span>
+        <p class="stat-desc">Pedidos até as 14h chegam no dia seguinte na capital.</p>
+      </li>
+      <li class="stat" data-reveal>
+        <div class="stat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7M12 7S10 2 7 3s-1 4 5 4zM12 7s2-5 5-4 1 4-5 4z"/></svg></div>
+        <span class="stat-label">Frete grátis acima de</span>
+        <span class="stat-num" data-count="150" data-prefix="R$ " aria-hidden="true">R$ 150</span>
+        <span class="sr-only">Frete grátis acima de 150 reais.</span>
+        <p class="stat-desc">Junte tudo num pedido só e economize no envio.</p>
+      </li>
+      <li class="stat" data-reveal>
+        <div class="stat-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></div>
+        <span class="stat-label">Nota dos tutores</span>
+        <span class="stat-num" data-count="4.9" data-decimals="1" aria-hidden="true">4,9</span>
+        <span class="sr-only">Nota média 4,9 de 5.</span>
+        <p class="stat-desc">Mais de 3.200 avaliações com 5 estrelinhas.</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Faixa marquee -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Veterinários parceiros <svg viewBox="0 0 64 64"><use href="#paw"/></svg> Troca fácil em 30 dias <svg viewBox="0 0 64 64"><use href="#paw"/></svg> 5% off no Pix <svg viewBox="0 0 64 64"><use href="#paw"/></svg> Pagamento seguro <svg viewBox="0 0 64 64"><use href="#paw"/></svg></span>
+      <span>Veterinários parceiros <svg viewBox="0 0 64 64"><use href="#paw"/></svg> Troca fácil em 30 dias <svg viewBox="0 0 64 64"><use href="#paw"/></svg> 5% off no Pix <svg viewBox="0 0 64 64"><use href="#paw"/></svg> Pagamento seguro <svg viewBox="0 0 64 64"><use href="#paw"/></svg></span>
+    </div>
+  </div>
+
+  <!-- ============ 6. DEPOIMENTOS ============ -->
+  <section class="section testimonials" id="depoimentos" aria-labelledby="dep-title">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Depoimentos</span>
+        <h2 id="dep-title" data-split="words">Quem tem rabinho, aprova</h2>
+      </div>
+      <div class="carousel-controls">
+        <button class="circle-btn" id="t-prev" aria-label="Depoimento anterior"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button class="circle-btn" id="t-next" aria-label="Próximo depoimento"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+    <div class="carousel" id="carousel" role="region" aria-roledescription="carrossel" aria-label="Depoimentos de tutores" tabindex="0">
+      <div class="carousel-track" id="carousel-track"><!-- gerado via JS --></div>
+    </div>
+    <div class="carousel-progress" aria-hidden="true"><i id="carousel-progress"></i></div>
+  </section>
+
+  <!-- ============ 7. CHAMADA FINAL ============ -->
+  <section class="cta" id="comprar" aria-labelledby="cta-title">
+    <canvas id="paws" aria-hidden="true"></canvas>
+    <div class="cta-inner">
+      <span class="eyebrow">Bora mimar?</span>
+      <h2 id="cta-title" data-split="words">Seu melhor amigo está esperando</h2>
+      <p>Frete grátis acima de R$ 150 e <b>10% off</b> na primeira compra com o cupom <b>LAMBEIJO10</b>.</p>
+      <div class="cta-actions">
+        <a class="btn btn-xl magnetic" href="#" data-buy><span class="btn-label">Comprar agora
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+        <a class="btn btn-wa btn-xl magnetic" href="#" data-wa target="_blank" rel="noopener"><span class="btn-label">
+          <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><use href="#wa"/></svg>Pedir no WhatsApp</span></a>
+      </div>
+      <p class="cta-hint" aria-hidden="true">Psiu: clique no fundo pra soltar mais patinhas 🐾</p>
+    </div>
+  </section>
+</main>
+
+<!-- ============ 8. RODAPÉ ============ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <a class="logo" href="#top" aria-label="Lambeijo, voltar ao início">
+        <span class="logo-mark"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#paw"/></svg></span>
+        <span class="logo-word">lambeijo</span>
+      </a>
+      <p class="footer-tag">Tudo que seu melhor amigo merece, com entrega rapidinha e muito carinho em cada pacote.</p>
+      <div class="socials">
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></svg></a>
+        <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24"><path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5M14 3c.5 2.8 2.4 4.6 5 5"/></svg></a>
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V10H6v3.5h3V21h3.5v-7.5h3L16 10h-3.5V7a1 1 0 0 1 1-1H15z"/></svg></a>
+        <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3z"/></svg></a>
+      </div>
+    </div>
+    <div>
+      <h4>Loja</h4>
+      <ul>
+        <li><a href="#produtos">Destaques</a></li>
+        <li><a href="#categorias">Categorias</a></li>
+        <li><a href="#diferenciais">Por que a gente</a></li>
+        <li><a href="#depoimentos">Depoimentos</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Ajuda</h4>
+      <ul>
+        <li><a href="#">Entregas e frete</a></li>
+        <li><a href="#">Trocas e devoluções</a></li>
+        <li><a href="#">Perguntas frequentes</a></li>
+        <li><a href="#">Política de privacidade</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contato</h4>
+      <ul>
+        <li><a href="#" data-wa target="_blank" rel="noopener">WhatsApp: (11) 99999-9999</a></li>
+        <li><a href="mailto:oi@lambeijo.com.br">oi@lambeijo.com.br</a></li>
+        <li>Seg a sáb · 8h às 20h</li>
+        <li>Rua dos Bigodes, 123 · São Paulo, SP</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© <span id="year">2026</span> Lambeijo Pet Shop · CNPJ 00.000.000/0001-00</span>
+    <span>Feito com 🧡 para quem tem 4 patas</span>
+  </div>
+</footer>
+
+<a class="wa-float" href="#" data-wa target="_blank" rel="noopener" aria-label="Fale com a gente no WhatsApp"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#wa"/></svg></a>
+
+<!-- =========================================================================
+     LOADER (script clássico, roda antes de tudo).
+     Mostra a porcentagem subindo de forma suave; o módulo principal informa
+     o progresso real via window.__loader.set(). Se algo falhar (CDN offline),
+     o timeout de segurança libera a página mesmo assim.
+     ========================================================================= -->
+<script>
+(function(){
+  var num = document.getElementById('loader-num');
+  var bar = document.getElementById('loader-bar');
+  var msg = document.getElementById('loader-msg');
+  var msgs = ['Separando os petiscos…','Afofando as caminhas…','Enchendo as bolinhas…','Chamando a turma…'];
+  var target = 0, shown = 0, done = false, t0 = performance.now(), last = t0, mi = 0, listeners = [];
+  var MIN_MS = 1300;
+  setInterval(function(){ if(!done){ mi = (mi + 1) % msgs.length; msg.textContent = msgs[mi]; } }, 900);
+  function tick(now){
+    // baseado em tempo (não em frames) para funcionar igual em GPUs lentas
+    var dt = Math.min((now - last) / 1000, .25); last = now;
+    // "trickle": avança sozinho até 70% enquanto os assets carregam
+    if (target < .7) target = Math.min(.7, target + dt * .25);
+    shown += (target - shown) * (1 - Math.exp(-dt * 6));
+    if (target >= 1 && target - shown < .01) shown = 1;
+    var p = Math.min(1, shown);
+    num.textContent = Math.round(p * 100);
+    bar.style.transform = 'scaleX(' + p + ')';
+    if (target >= 1 && shown > .995 && now - t0 > MIN_MS) {
+      num.textContent = '100'; bar.style.transform = 'scaleX(1)';
+      done = true; listeners.forEach(function(fn){ fn(); }); return;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  window.__loader = {
+    set: function(v){ target = Math.max(target, v); },
+    onDone: function(fn){ done ? fn() : listeners.push(fn); },
+    get done(){ return done; }
+  };
+  // Rede de segurança: se o módulo não carregar, libera a página.
+  setTimeout(function(){
+    if (!window.__appReady) {
+      target = 1;
+      window.__loader.onDone(function(){
+        var l = document.getElementById('loader');
+        if (l && !window.__appReady) { l.style.transition = 'opacity .5s'; l.style.opacity = 0; setTimeout(function(){ l.remove(); }, 500); }
+      });
+    }
+  }, 9000);
+})();
+</script>
+
+<!-- =========================================================================
+     APLICAÇÃO PRINCIPAL (ES module)
+     ========================================================================= -->
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+window.__appReady = true;
+
+/* =========================================================================
+   0. CONFIGURAÇÃO — troque aqui os links reais da loja
+   ========================================================================= */
+const CONFIG = {
+  storeName: 'Lambeijo',
+  // Link de compra (por enquanto localhost para testes). Os produtos acrescentam ?produto=<slug>.
+  buyUrl: 'http://localhost:8080/checkout',
+  // WhatsApp no formato internacional, só números (55 + DDD + número).
+  whatsapp: '5511999999999',
+  whatsappMsg: 'Oi, Lambeijo! Vim pelo site e quero mimar meu pet 🐾',
+};
+
+const PRODUCTS = [
+  { slug: 'cama-ortopedica', tag: 'Conforto', name: 'Cama Ortopédica Nuvem', price: 189,
+    benefit: 'Espuma viscoelástica que abraça o corpinho e alivia as articulações. Soninho de nuvem, todas as noites.',
+    colorLabel: 'Cor', colors: [['Abóbora', '#FF7A3D'], ['Petróleo', '#2E6577'], ['Rosa algodão', '#F59AB5']] },
+  { slug: 'brinquedo-interativo', tag: 'Diversão', name: 'Bolinha Quebra-Cuca', price: 59,
+    benefit: 'Esconde petiscos e libera aos pouquinhos: estimula o faro, gasta energia e acaba com o tédio.',
+    colorLabel: 'Cor', colors: [['Chiclete', '#FF7FA8'], ['Tangerina', '#FF8A3D'], ['Menta', '#4FBF9C']] },
+  { slug: 'racao-premium-10kg', tag: 'Nutrição', name: 'Ração Premium 10kg', price: 249,
+    benefit: 'Proteína de verdade como 1º ingrediente e zero corantes. Pelo brilhante e energia pra brincar o dia todo.',
+    colorLabel: 'Sabor', colors: [['Frango', '#F2A541'], ['Salmão', '#EE7766'], ['Cordeiro', '#5A8F7B']] },
+  { slug: 'coleira-gps', tag: 'Segurança', name: 'Coleira Smart GPS', price: 299,
+    benefit: 'Localização em tempo real no celular e alerta de cerca virtual. Passeios livres, coração tranquilo.',
+    colorLabel: 'Cor', colors: [['Petróleo', '#1F4E5F'], ['Coral', '#FF7A3D'], ['Rosa', '#F59AB5']] },
+];
+
+const TESTIMONIALS = [
+  { tutor: 'Mariana S.', city: 'São Paulo, SP', pet: 'Thor, golden de 3 anos', kind: 'dog', fur: '#F2B26B', ear: '#D98B3E', bg: '#FFE1CF',
+    text: 'A cama ortopédica mudou as noites do Thor. Ele corre pra ela assim que eu apago a luz! Entrega rapidinha e embalagem cheirosa.' },
+  { tutor: 'Rafael M.', city: 'Curitiba, PR', pet: 'Mia, siamesa', kind: 'cat', fur: '#F3E3CF', ear: '#6B4E3D', bg: '#DCEFF2',
+    text: 'A Mia é exigente com tudo, mas a Bolinha Quebra-Cuca virou o passatempo oficial dela. Atendimento no WhatsApp nota 10.' },
+  { tutor: 'Júlia e Pedro', city: 'Recife, PE', pet: 'Paçoca, vira-lata caramelo', kind: 'dog2', fur: '#D9893F', ear: '#B86A28', bg: '#FFF0C9',
+    text: 'O Paçoca é fujão e a coleira GPS salvou nosso coração. A gente acompanha cada passeio pelo app.' },
+  { tutor: 'Ana Clara', city: 'Belo Horizonte, MG', pet: 'Nina, gatinha rajada', kind: 'cat', fur: '#9AA5AE', ear: '#5F6B75', bg: '#FFD9E2',
+    text: 'Comprei a ração premium e em duas semanas o pelo da Nina ficou brilhando. O frete grátis ajudou demais!' },
+  { tutor: 'Carlos E.', city: 'Porto Alegre, RS', pet: 'Bento, buldogue francês', kind: 'dog2', fur: '#3A3A40', ear: '#26262B', bg: '#E3F4EC',
+    text: 'Me ajudaram a escolher o tamanho certo da caminha pelo WhatsApp, com muita paciência. O Bento aprovou roncando.' },
+  { tutor: 'Fernanda L.', city: 'Rio de Janeiro, RJ', pet: 'Pipoca, shih-tzu', kind: 'dog', fur: '#FFF3E4', ear: '#C9A27E', bg: '#FFE1CF',
+    text: 'Chegou em menos de 24h! O kit de higiene é cheirosinho e não irrita a pele da Pipoca. Virei cliente fiel.' },
+];
+
+/* =========================================================================
+   1. AMBIENTE E QUALIDADE
+   ========================================================================= */
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FINE_POINTER = matchMedia('(hover: hover) and (pointer: fine)').matches;
+const IS_MOBILE = matchMedia('(max-width: 900px)').matches || !FINE_POINTER;
+const { gsap, ScrollTrigger, Lenis } = window;
+const HAS_GSAP = !!(gsap && ScrollTrigger);
+if (HAS_GSAP) gsap.registerPlugin(ScrollTrigger);
+
+const Q = {
+  seg: IS_MOBILE ? 20 : 32,                       // segmentos das esferas
+  shadows: !IS_MOBILE,                            // sombras só no desktop
+  dpr: Math.min(window.devicePixelRatio || 1, IS_MOBILE ? 1.5 : 2), // pixel ratio limitado a 2
+  bokeh: !IS_MOBILE && !RM,                       // profundidade de campo só no desktop
+  heroFloaters: IS_MOBILE ? 8 : 16,
+  corridorFloaters: IS_MOBILE ? 6 : 16,
+  paws: IS_MOBILE ? 12 : 24,
+};
+
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const damp = (a, b, lambda, dt) => lerp(a, b, 1 - Math.exp(-lambda * dt));
+const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+const brl2 = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* =========================================================================
+   2. LINKS DE COMPRA / WHATSAPP
+   ========================================================================= */
+const waUrl = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(CONFIG.whatsappMsg)}`;
+const buyHref = (slug) => slug ? `${CONFIG.buyUrl}?produto=${encodeURIComponent(slug)}` : CONFIG.buyUrl;
+function wireLinks(root = document) {
+  root.querySelectorAll('[data-wa]').forEach(a => a.href = waUrl);
+  root.querySelectorAll('[data-buy]').forEach(a => a.href = buyHref(a.dataset.product || a.dataset.cat));
+}
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* =========================================================================
+   3. CONTEÚDO GERADO (produtos + depoimentos)
+   ========================================================================= */
+function buildProductsUI() {
+  const wrap = document.getElementById('product-slides');
+  const rail = document.getElementById('product-rail');
+  document.getElementById('p-total').textContent = String(PRODUCTS.length).padStart(2, '0');
+  wrap.innerHTML = PRODUCTS.map((p, i) => `
+    <article class="product-slide ${i === 0 ? 'is-active' : 'is-after'}" data-index="${i}" aria-label="${p.name}">
+      <span class="ps ps-tag" style="--i:0">${p.tag}</span>
+      <h3 class="ps" style="--i:1">${p.name}</h3>
+      <p class="ps ps-benefit" style="--i:2">${p.benefit}</p>
+      <div class="ps ps-price" style="--i:3"><strong>${brl.format(p.price)}</strong><span>ou ${brl2.format(p.price * .95)} no Pix · 3x sem juros</span></div>
+      <div class="ps ps-swatches" style="--i:4">
+        ${p.colors.map(([n, c], ci) => `<button class="swatch ${ci === 0 ? 'is-on' : ''}" style="--c:${c}" data-color="${ci}" aria-label="${p.colorLabel}: ${n}"></button>`).join('')}
+        <span class="label">${p.colorLabel}: <b>${p.colors[0][0]}</b></span>
+      </div>
+      <div class="ps ps-actions" style="--i:5">
+        <a class="btn btn-primary magnetic" href="#" data-buy data-product="${p.slug}"><span class="btn-label">Comprar</span></a>
+        <a class="btn btn-ghost magnetic" href="#" data-wa target="_blank" rel="noopener"><span class="btn-label"><svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><use href="#wa"/></svg>WhatsApp</span></a>
+      </div>
+    </article>`).join('');
+  rail.innerHTML = PRODUCTS.map(() => '<span><i></i></span>').join('');
+  wrap.querySelectorAll('.product-slide').forEach((s, i) => { if (i) s.inert = true; });
+}
+
+/** Retrato ilustrado de pet em SVG (substitui fotos) */
+function petPortrait(t, idx) {
+  const eyes = `<circle cx="-14" cy="-2" r="4.6" fill="#2B2422"/><circle cx="14" cy="-2" r="4.6" fill="#2B2422"/>
+                <circle cx="-12.6" cy="-3.6" r="1.5" fill="#fff"/><circle cx="15.4" cy="-3.6" r="1.5" fill="#fff"/>`;
+  const blush = `<ellipse cx="-24" cy="10" rx="5" ry="3" fill="#FF9DB6" opacity=".7"/><ellipse cx="24" cy="10" rx="5" ry="3" fill="#FF9DB6" opacity=".7"/>`;
+  let face;
+  if (t.kind === 'cat') {
+    face = `<path d="M-30-14-26-46-6-28z" fill="${t.ear}"/><path d="M30-14 26-46 6-28z" fill="${t.ear}"/>
+      <ellipse cx="0" cy="0" rx="36" ry="31" fill="${t.fur}"/>
+      <ellipse cx="0" cy="12" rx="15" ry="10" fill="#FFF8F0"/>${eyes}${blush}
+      <path d="M-4 7h8l-4 4z" fill="#FF8FA3"/>
+      <path d="M-18 12-40 8M-18 16-38 20M18 12l22-4M18 16l20 4" stroke="#2B2422" stroke-width="1.4" stroke-linecap="round"/>`;
+  } else if (t.kind === 'dog2') {
+    face = `<path d="M-32-6-30-44-8-26z" fill="${t.ear}"/><path d="M32-6 30-44 8-26z" fill="${t.ear}"/>
+      <ellipse cx="0" cy="2" rx="35" ry="32" fill="${t.fur}"/>
+      <ellipse cx="0" cy="16" rx="18" ry="13" fill="#FFF3E4"/>${eyes}${blush}
+      <ellipse cx="0" cy="9" rx="6" ry="4.5" fill="#2B2422"/><path d="M-4 20c0 6 8 6 8 0z" fill="#FF8FA3"/>`;
+  } else {
+    face = `<ellipse cx="-31" cy="4" rx="11" ry="22" fill="${t.ear}" transform="rotate(16 -31 4)"/>
+      <ellipse cx="31" cy="4" rx="11" ry="22" fill="${t.ear}" transform="rotate(-16 31 4)"/>
+      <circle cx="0" cy="0" r="33" fill="${t.fur}"/>
+      <ellipse cx="0" cy="15" rx="19" ry="14" fill="#FFF3E4"/>${eyes}${blush}
+      <ellipse cx="0" cy="9" rx="6.5" ry="5" fill="#2B2422"/><path d="M-4.5 19c0 7 9 7 9 0z" fill="#FF8FA3"/>`;
+  }
+  return `<svg viewBox="0 0 200 150" role="img" aria-label="Ilustração de ${t.pet}">
+    <rect width="200" height="150" fill="${t.bg}"/>
+    <circle cx="${30 + idx * 17 % 140}" cy="28" r="34" fill="#fff" opacity=".45"/>
+    <circle cx="170" cy="${120 - idx * 9 % 40}" r="22" fill="#fff" opacity=".35"/>
+    <ellipse cx="100" cy="140" rx="54" ry="10" fill="#1F4E5F" opacity=".1"/>
+    <g transform="translate(100 82)">${face}</g>
+  </svg>`;
+}
+function buildTestimonials() {
+  document.getElementById('carousel-track').innerHTML = TESTIMONIALS.map((t, i) => `
+    <figure class="t-card" role="group" aria-roledescription="slide" aria-label="Depoimento ${i + 1} de ${TESTIMONIALS.length}" style="margin:0">
+      <div class="t-portrait">${petPortrait(t, i)}</div>
+      <blockquote>“${t.text}”</blockquote>
+      <figcaption class="t-meta">
+        <div><strong>${t.tutor}</strong><small>${t.pet} · ${t.city}</small></div>
+        <span class="stars" aria-label="5 de 5 estrelas">★★★★★</span>
+      </figcaption>
+    </figure>`).join('');
+}
+buildProductsUI();
+buildTestimonials();
+wireLinks();
+
+/* =========================================================================
+   4. TEXTO DIVIDIDO (letra a letra / palavra a palavra)
+   Mantém o texto original acessível em um span .sr-only.
+   ========================================================================= */
+function splitText(el, mode) {
+  const original = el.textContent.replace(/\s+/g, ' ').trim();
+  const visual = document.createElement('span');
+  visual.setAttribute('aria-hidden', 'true');
+  visual.className = 'split';
+  const walk = (node, parent) => {
+    node.childNodes.forEach(child => {
+      if (child.nodeType === 3) {
+        child.textContent.split(/(\s+)/).forEach(part => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { parent.appendChild(document.createTextNode(' ')); return; }
+          const w = document.createElement('span'); w.className = 'w';
+          if (mode === 'chars') {
+            [...part].forEach(ch => { const c = document.createElement('span'); c.className = 'c'; c.textContent = ch; w.appendChild(c); });
+          } else {
+            const wi = document.createElement('span'); wi.className = 'wi'; wi.textContent = part; w.appendChild(wi);
+          }
+          parent.appendChild(w);
+        });
+      } else if (child.nodeType === 1) {
+        const clone = child.cloneNode(false);
+        parent.appendChild(clone);
+        walk(child, clone);
+      }
+    });
+  };
+  walk(el, visual);
+  el.textContent = '';
+  const sr = document.createElement('span'); sr.className = 'sr-only'; sr.textContent = original;
+  el.append(sr, visual);
+  return visual;
+}
+document.querySelectorAll('[data-split]').forEach(el => {
+  const mode = el.dataset.split === 'chars' ? 'chars' : 'words';
+  el._split = splitText(el, mode);
+});
+
+/* =========================================================================
+   5. SCROLL SUAVE (Lenis) + ScrollTrigger
+   ========================================================================= */
+history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+let lenis = null;
+if (HAS_GSAP && Lenis && !RM) {
+  lenis = new Lenis({ duration: 1.15, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true, touchMultiplier: 1.4 });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+  lenis.stop(); // travado até o loader sair
+}
+const scrollToTarget = (target, opts = {}) => {
+  if (lenis) lenis.scrollTo(target, { duration: 1.6, ...opts });
+  else window.scrollTo({ top: typeof target === 'number' ? target : target.getBoundingClientRect().top + scrollY, behavior: RM ? 'auto' : 'smooth' });
+};
+
+/* =========================================================================
+   6. CURSOR PATINHA
+   ========================================================================= */
+const cursorEl = document.getElementById('cursor');
+const pointer = { x: 0, y: 0, sx: 0, sy: 0, cx: innerWidth / 2, cy: innerHeight / 2, px: innerWidth / 2, py: innerHeight / 2, active: false };
+const INTERACTIVE = 'a, button, [data-cursor], .cat-card, .swatch';
+let petHover = false;
+if (FINE_POINTER) {
+  document.documentElement.classList.add('has-cursor');
+  addEventListener('pointerdown', () => cursorEl.classList.add('is-down'));
+  addEventListener('pointerup', () => cursorEl.classList.remove('is-down'));
+  document.addEventListener('pointerover', e => {
+    const hit = e.target.closest(INTERACTIVE);
+    cursorEl.classList.toggle('is-hover', !!hit || petHover);
+    cursorEl.classList.toggle('on-orange', !!e.target.closest('.cta, .marquee, .btn-primary'));
+  });
+  document.addEventListener('mouseleave', () => cursorEl.style.opacity = 0);
+  document.addEventListener('mouseenter', () => cursorEl.style.opacity = '');
+}
+addEventListener('pointermove', e => {
+  pointer.px = e.clientX; pointer.py = e.clientY;
+  pointer.x = (e.clientX / innerWidth) * 2 - 1;
+  pointer.y = -(e.clientY / innerHeight) * 2 + 1;
+  pointer.active = true;
+}, { passive: true });
+
+/* Giroscópio no celular → substitui o mouse para o parallax */
+if (!FINE_POINTER && !RM && 'DeviceOrientationEvent' in window) {
+  const onOrient = e => {
+    if (e.gamma == null) return;
+    pointer.x = clamp(e.gamma / 25, -1, 1);
+    pointer.y = clamp((45 - e.beta) / 25, -1, 1);
+  };
+  const enable = () => addEventListener('deviceorientation', onOrient, { passive: true });
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    addEventListener('touchend', () => DeviceOrientationEvent.requestPermission().then(s => s === 'granted' && enable()).catch(() => {}), { once: true });
+  } else enable();
+}
+
+/* =========================================================================
+   7. CENA 3D PRINCIPAL (hero → travessia → produtos)
+   ========================================================================= */
+const canvas = document.getElementById('webgl');
+let renderer = null;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: !Q.bokeh, powerPreference: 'high-performance' });
+} catch (err) {
+  console.warn('WebGL indisponível:', err);
+  document.documentElement.classList.add('no-webgl');
+  canvas.remove();
+}
+
+const STAGE_Z = -32;
+const world = { dollyT: 0, dollyTarget: 0, prodP: 0, prodTarget: 0, exitT: 0, active: true, introDone: false };
+let main = null;
+
+if (renderer) main = createMainScene();
+
+function createMainScene() {
+  renderer.setPixelRatio(Q.dpr);
+  renderer.setSize(innerWidth, innerHeight, false);
+  renderer.toneMapping = THREE.NeutralToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.shadowMap.enabled = Q.shadows;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.Fog('#FCEADF', 16, 46);
+  const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 200);
+
+  /* ---------- Materiais e geometrias compartilhadas ---------- */
+  const G = {
+    sphere: new THREE.SphereGeometry(1, Q.seg, Math.round(Q.seg * .75)),
+    caps: (r, l) => new THREE.CapsuleGeometry(r, l, 6, Q.seg),
+  };
+  const matCache = {};
+  /** Material "de brinquedo": standard fosco; pelúcia ganha sheen no desktop. */
+  function toon(color, o = {}) {
+    const key = color + JSON.stringify(o);
+    if (!o.unique && matCache[key]) return matCache[key];
+    const plush = o.plush && !IS_MOBILE;
+    const M = plush ? THREE.MeshPhysicalMaterial : THREE.MeshStandardMaterial;
+    const m = new M({ color, roughness: o.rough ?? .62, metalness: o.metal ?? 0 });
+    if (plush) { m.sheen = 1; m.sheenRoughness = .5; m.sheenColor = new THREE.Color('#ffffff'); }
+    if (o.emissive) { m.emissive = new THREE.Color(o.emissive); m.emissiveIntensity = o.ei ?? 1; }
+    if (!o.unique) matCache[key] = m;
+    return m;
+  }
+  function part(geo, mat, { p = [0, 0, 0], s = null, r = null, shadow = true } = {}) {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(...p);
+    if (s != null) Array.isArray(s) ? m.scale.set(...s) : m.scale.setScalar(s);
+    if (r) m.rotation.set(...r);
+    m.castShadow = shadow && Q.shadows;
+    m.receiveShadow = Q.shadows;
+    return m;
+  }
+  /** esfera de raio r com escala por eixo */
+  const ball = (r, mat, p, sx = 1, sy = 1, sz = 1, o = {}) => part(G.sphere, mat, { p, s: [r * sx, r * sy, r * sz], ...o });
+  /** "Puck" arredondado (almofada / pedestal) via LatheGeometry */
+  function puck(R, H, rc, seg = 64) {
+    const pts = [new THREE.Vector2(0, -H)];
+    for (let i = 0; i <= 8; i++) { const a = -Math.PI / 2 + (i / 8) * Math.PI / 2; pts.push(new THREE.Vector2(R - rc + Math.cos(a) * rc, -H + rc + Math.sin(a) * rc)); }
+    for (let i = 0; i <= 8; i++) { const a = (i / 8) * Math.PI / 2; pts.push(new THREE.Vector2(R - rc + Math.cos(a) * rc, -rc + Math.sin(a) * rc)); }
+    pts.push(new THREE.Vector2(0, 0));
+    return new THREE.LatheGeometry(pts, seg);
+  }
+  function bowlGeo() {
+    const pts = [[0, 0], [.32, 0], [.4, .04], [.46, .22], [.44, .26], [.38, .25], [.33, .1], [0, .1]].map(([x, y]) => new THREE.Vector2(x, y));
+    return new THREE.LatheGeometry(pts, 40);
+  }
+  const heartShape = new THREE.Shape();
+  heartShape.moveTo(5, 5); heartShape.bezierCurveTo(5, 5, 4, 0, 0, 0); heartShape.bezierCurveTo(-6, 0, -6, 7, -6, 7);
+  heartShape.bezierCurveTo(-6, 11, -3, 15.4, 5, 19); heartShape.bezierCurveTo(12, 15.4, 16, 11, 16, 7);
+  heartShape.bezierCurveTo(16, 7, 16, 0, 10, 0); heartShape.bezierCurveTo(7, 0, 5, 5, 5, 5);
+  const heartGeo = new THREE.ExtrudeGeometry(heartShape, { depth: 4, bevelEnabled: true, bevelSegments: 3, bevelSize: 1.5, bevelThickness: 1.5, curveSegments: 16 });
+  heartGeo.center(); heartGeo.scale(.022, .022, .022); heartGeo.rotateZ(Math.PI);
+
+  /* ---------- Céu: mesh gradient animado em shader ---------- */
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false,
+    uniforms: {
+      uTime: { value: 0 },
+      uBase: { value: new THREE.Color('#FFF3E6') }, uA: { value: new THREE.Color('#FFC9A8') },
+      uB: { value: new THREE.Color('#FFC2D1') }, uC: { value: new THREE.Color('#BFDCE0') }, uD: { value: new THREE.Color('#FFE8B8') },
+    },
+    vertexShader: `varying vec3 vDir; void main(){ vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }`,
+    fragmentShader: `
+      uniform float uTime; uniform vec3 uBase,uA,uB,uC,uD; varying vec3 vDir;
+      float blob(vec3 d, vec3 c, float r){ return smoothstep(1.0 - r, 1.0, max(0., dot(d, normalize(c)))); }
+      void main(){
+        vec3 d = normalize(vDir); float t = uTime * .06;
+        vec3 col = uBase;
+        col = mix(col, uA, blob(d, vec3(sin(t) * 1.1 + .6, .35 + .25 * sin(t * 1.7), -1.), .55) * .6);
+        col = mix(col, uB, blob(d, vec3(-1.1 + .3 * cos(t * 1.3), -.15 + .3 * sin(t * .9), -.7), .6) * .7);
+        col = mix(col, uC, blob(d, vec3(.8 * cos(t * .8), -.7, -.5 + .5 * sin(t)), .5) * .45);
+        col = mix(col, uD, blob(d, vec3(cos(t * .6 + 2.), .9, sin(t * .6 + 2.) - .4), .7) * .55);
+        float n = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453);
+        col += (n - .5) * .01;
+        gl_FragColor = vec4(col, 1.);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(90, 48, 32), skyMat);
+  sky.renderOrder = -1;
+  scene.add(sky);
+
+  /* ---------- Luzes ---------- */
+  scene.add(new THREE.HemisphereLight('#FFF4E8', '#F6B7C6', 1.35));
+  const sun = new THREE.DirectionalLight('#FFFFFF', 2.2);
+  sun.castShadow = Q.shadows;
+  if (Q.shadows) {
+    sun.shadow.mapSize.set(2048, 2048);
+    Object.assign(sun.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7, near: 1, far: 30 });
+    sun.shadow.bias = -.0004; sun.shadow.normalBias = .03; sun.shadow.radius = 6;
+  }
+  scene.add(sun, sun.target);
+  const rim = new THREE.DirectionalLight('#FFB28A', 1.1); rim.position.set(-6, 4, -6); scene.add(rim);
+  const fill = new THREE.DirectionalLight('#FFE9DC', .7); fill.position.set(-3, 2, 8); scene.add(fill); // clareia as sombras
+
+  /* ---------- Personagens ---------- */
+  function makeDog() {
+    const fur = toon('#EFA35C', { plush: true }), furDark = toon('#C9773A', { plush: true }), cream = toon('#FFEBD2', { plush: true });
+    const ink = toon('#2B2422', { rough: .25 }), white = toon('#FFFFFF', { rough: .2 }), pink = toon('#FF8FA3'), blush = toon('#FFB3C1');
+    const petrol = toon('#1F4E5F'), gold = toon('#F7C548', { metal: .55, rough: .3 });
+    const root = new THREE.Group(), jump = new THREE.Group(); root.add(jump);
+    jump.add(part(G.caps(.62, .5), fur, { p: [0, .95, 0] }));
+    jump.add(ball(.42, cream, [0, .95, .4], 1, 1.15, .55));
+    [-1, 1].forEach(sx => {
+      jump.add(part(G.caps(.15, .5), fur, { p: [sx * .24, .42, .5] }));
+      jump.add(ball(.2, cream, [sx * .24, .1, .62], 1, .6, 1.3));
+      jump.add(ball(.42, fur, [sx * .48, .42, -.02], .9, .85, 1.15));
+      jump.add(ball(.2, cream, [sx * .62, .1, .3], 1, .55, 1.5));
+    });
+    const collar = part(new THREE.TorusGeometry(.6, .075, 12, 48), petrol, { p: [0, 1.3, 0], r: [Math.PI / 2, 0, 0] }); jump.add(collar);
+    jump.add(part(new THREE.CylinderGeometry(.1, .1, .03, 24), gold, { p: [0, 1.17, .66], r: [Math.PI / 2 - .2, 0, 0] }));
+    // cabeça
+    const head = new THREE.Group(); head.position.set(0, 1.85, .12); jump.add(head);
+    head.add(ball(.62, fur, [0, 0, 0], 1.05, .95, 1));
+    head.add(ball(.3, cream, [0, -.18, .5], 1.25, .85, 1));
+    head.add(ball(.11, ink, [0, -.06, .78], 1.35, .95, .9));
+    head.add(ball(.03, white, [.035, -.02, .87], 1, 1, 1, { shadow: false }));
+    head.add(ball(.1, pink, [0, -.4, .64], 1, .5, .9, { r: [.3, 0, 0] }));
+    const eyes = [-1, 1].map(sx => {
+      const e = new THREE.Group(); e.position.set(sx * .25, .1, .52);
+      e.add(ball(.085, ink, [0, 0, 0], 1, 1.1, .8, { shadow: false }));
+      e.add(ball(.028, white, [.025, .035, .06], 1, 1, 1, { shadow: false }));
+      head.add(e); return e;
+    });
+    [-1, 1].forEach(sx => head.add(ball(.1, blush, [sx * .42, -.13, .4], 1.2, .7, .4, { shadow: false })));
+    const ears = [-1, 1].map(sx => {
+      const pivot = new THREE.Group(); pivot.position.set(sx * .5, .32, -.02); pivot.rotation.z = sx * .25;
+      pivot.add(ball(.3, furDark, [0, -.3, 0], .55, 1.15, .28)); head.add(pivot); return pivot;
+    });
+    // rabinho
+    const tail = new THREE.Group(); tail.position.set(0, .45, -.55); tail.rotation.x = -.3;
+    tail.add(part(G.caps(.09, .4), fur, { p: [0, .28, -.05], r: [-.5, 0, 0] })); jump.add(tail);
+    root.userData = { kind: 'dog', jump, head, eyes, ears, tail, blinkAt: 2 + Math.random() * 3 };
+    return root;
+  }
+
+  function makeCat() {
+    const fur = toon('#7A9AA8', { plush: true }), cream = toon('#FFF3E4', { plush: true });
+    const ink = toon('#2B2422', { rough: .25 }), white = toon('#FFFFFF', { rough: .2 }), pink = toon('#FF9DB6'), blush = toon('#FFB3C1');
+    const gold = toon('#F7C548', { metal: .55, rough: .3 }), collarM = toon('#FF7A3D');
+    const root = new THREE.Group(), jump = new THREE.Group(); root.add(jump);
+    jump.add(part(G.caps(.5, .55), fur, { p: [0, .85, 0], s: [1, 1, .95] }));
+    jump.add(ball(.34, cream, [0, .95, .36], 1, 1.25, .55));
+    [-1, 1].forEach(sx => {
+      jump.add(part(G.caps(.12, .45), fur, { p: [sx * .18, .36, .42] }));
+      jump.add(ball(.15, cream, [sx * .18, .08, .5], 1, .6, 1.25));
+      jump.add(ball(.36, fur, [sx * .38, .36, -.02], .9, .85, 1.15));
+      jump.add(ball(.16, cream, [sx * .5, .08, .24], 1, .55, 1.4));
+    });
+    jump.add(part(new THREE.TorusGeometry(.49, .06, 12, 48), collarM, { p: [0, 1.22, 0], r: [Math.PI / 2, 0, 0] }));
+    jump.add(ball(.08, gold, [0, 1.12, .55]));
+    const head = new THREE.Group(); head.position.set(0, 1.68, .06); jump.add(head);
+    head.add(ball(.55, fur, [0, 0, 0], 1.14, .94, 1));
+    [-1, 1].forEach(sx => head.add(ball(.15, cream, [sx * .1, -.16, .47], 1, .8, .8)));
+    head.add(ball(.1, cream, [0, -.26, .45]));
+    head.add(ball(.065, pink, [0, -.07, .56], 1.4, .9, .8, { shadow: false }));
+    const eyes = [-1, 1].map(sx => {
+      const e = new THREE.Group(); e.position.set(sx * .23, .04, .46);
+      e.add(ball(.1, ink, [0, 0, 0], 1, 1.15, .7, { shadow: false }));
+      e.add(ball(.033, white, [.03, .04, .06], 1, 1, 1, { shadow: false }));
+      head.add(e); return e;
+    });
+    [-1, 1].forEach(sx => head.add(ball(.08, blush, [sx * .38, -.12, .38], 1.2, .7, .4, { shadow: false })));
+    const earGeo = new THREE.ConeGeometry(.2, .38, 16), innerGeo = new THREE.ConeGeometry(.12, .26, 16);
+    const ears = [-1, 1].map(sx => {
+      const g = new THREE.Group(); g.position.set(sx * .34, .42, -.02); g.rotation.z = -sx * .32;
+      g.add(part(earGeo, fur)); g.add(part(innerGeo, pink, { p: [0, -.03, .07], shadow: false })); head.add(g); return g;
+    });
+    const whiskGeo = new THREE.CylinderGeometry(.008, .008, .42, 5), whiskM = toon('#3A3533');
+    [-1, 1].forEach(sx => [-.1, -.17].forEach((y, k) =>
+      head.add(part(whiskGeo, whiskM, { p: [sx * .42, y, .42], r: [0, 0, Math.PI / 2 + sx * (k ? -.12 : .1)], shadow: false }))));
+    // cauda curvada (TubeGeometry sobre curva)
+    const tail = new THREE.Group(); tail.position.set(.3, .25, -.38);
+    const curve = new THREE.CatmullRomCurve3([[0, 0, 0], [.32, .05, -.12], [.58, .35, -.1], [.55, .8, 0], [.4, 1.0, .05]].map(v => new THREE.Vector3(...v)));
+    tail.add(part(new THREE.TubeGeometry(curve, 40, .075, 10), fur));
+    tail.add(ball(.075, fur, [.4, 1.0, .05]));
+    jump.add(tail);
+    root.userData = { kind: 'cat', jump, head, eyes, ears, tail, blinkAt: 3 + Math.random() * 3 };
+    return root;
+  }
+
+  /* ---------- Objetos flutuantes ---------- */
+  const FL = {
+    ball(c = '#FF7A3D') {
+      const g = new THREE.Group();
+      g.add(ball(.32, toon(c, { rough: .45 }), [0, 0, 0]));
+      g.add(part(new THREE.TorusGeometry(.322, .024, 8, 48), toon('#FFF6EC'), { r: [Math.PI / 2.4, .4, 0] }));
+      return g;
+    },
+    bone() {
+      const g = new THREE.Group(), m = toon('#FFF1DC', { rough: .5 });
+      g.add(part(G.caps(.09, .5), m, { r: [0, 0, Math.PI / 2] }));
+      [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([x, y]) => g.add(ball(.13, m, [x * .32, y * .085, 0])));
+      return g;
+    },
+    kibble() {
+      return part(new THREE.TorusGeometry(.09, .055, 10, 20), toon('#B5733F', { rough: .8 }));
+    },
+    collar() {
+      const g = new THREE.Group();
+      g.add(part(new THREE.TorusGeometry(.34, .06, 10, 40), toon('#1F4E5F')));
+      g.add(part(new THREE.CylinderGeometry(.09, .09, .025, 20), toon('#F7C548', { metal: .55, rough: .3 }), { p: [0, -.43, 0], r: [Math.PI / 2, 0, 0] }));
+      return g;
+    },
+    bowl() {
+      const g = new THREE.Group();
+      g.add(part(bowlGeo(), toon('#FF7A3D', { rough: .4 }), { s: 1.1 }));
+      const k = toon('#B5733F', { rough: .8 });
+      for (let i = 0; i < 7; i++) g.add(ball(.07, k, [Math.cos(i * 2.4) * .2 * (i % 3) / 2, .2 + (i % 2) * .05, Math.sin(i * 2.4) * .2 * (i % 3) / 2], 1, .7, 1));
+      return g;
+    },
+    yarn() {
+      const g = new THREE.Group(), m = toon('#FF9DB6', { plush: true }), m2 = toon('#F77FA0');
+      g.add(ball(.3, m, [0, 0, 0]));
+      const tg = new THREE.TorusGeometry(.305, .018, 6, 40);
+      [[.3, 0, 0], [1.2, .6, 0], [2, 1.4, .5]].forEach(r => g.add(part(tg, m2, { r })));
+      return g;
+    },
+    fish() {
+      const g = new THREE.Group(), m = toon('#5FA8BC', { rough: .45 });
+      g.add(ball(.25, m, [0, 0, 0], 1.6, .85, .45));
+      g.add(part(new THREE.ConeGeometry(.16, .26, 16), m, { p: [-.48, 0, 0], r: [0, 0, Math.PI / 2] }));
+      g.add(ball(.04, toon('#2B2422'), [.24, .05, .1], 1, 1, 1, { shadow: false }));
+      return g;
+    },
+    heart() { return part(heartGeo, toon('#FF8FB1', { rough: .35 })); },
+  };
+
+  const pets = new THREE.Group(); scene.add(pets);
+  const platform = part(puck(2.8, .45, .2), toon('#FFC2D1', { plush: true }));
+  pets.add(platform);
+  const dog = makeDog(); dog.position.set(-.85, 0, 0); dog.rotation.y = .3;
+  const cat = makeCat(); cat.position.set(.95, 0, .1); cat.rotation.y = -.3;
+  pets.add(dog, cat);
+  const characters = [dog, cat];
+
+  const floaters = [];
+  const heroLayout = [
+    ['ball', -1.2, 4.5, -2.2, 1], ['bone', 2.4, 3.3, -.4, 1.1], ['yarn', 3.4, 1.0, .8, 1], ['collar', -1.6, 3.6, -1.6, 1],
+    ['fish', .6, 3.9, -1.2, 1], ['bowl', 4.6, .1, 1.6, .9], ['kibble', 1.9, 2.3, 1.6, 1.2], ['heart', -.2, 3.2, 1.4, .9],
+    ['kibble', -1.0, 2.9, 1.8, 1], ['kibble', 3.0, 2.6, -1.8, 1.1], ['ball', 4.2, 3.1, -2.6, .8], ['bone', -2.2, 1.2, -2.8, .9],
+    ['kibble', -3.6, 3.4, .2, 1], ['heart', 3.9, .3, -1.0, 1], ['ball', 1.2, .6, 2.9, .6], ['yarn', -4.6, 4.2, -3.5, .9],
+  ];
+  // celular: menos objetos, posicionados para não cobrir os rostos dos pets
+  const heroLayoutMobile = [
+    ['ball', -2.0, 3.0, -1.0, .9], ['bone', 1.9, 3.2, -.8, 1], ['yarn', 2.3, .9, .9, .9], ['fish', -2.2, 1.4, .6, .9],
+    ['kibble', -.9, 3.3, .8, 1.1], ['heart', .9, 3.5, .5, .9], ['collar', 0, 4.2, -2, .9], ['kibble', 1.9, 2.0, 1.6, 1],
+  ];
+  const HERO_LIST = IS_MOBILE ? heroLayoutMobile : heroLayout.slice(0, Q.heroFloaters);
+  function addFloater(type, pos, scale, group = 'hero') {
+    const o = type === 'ball' ? FL.ball(['#FF7A3D', '#FF9DB6', '#5FA8BC'][floaters.length % 3]) : FL[type]();
+    o.position.copy(pos); o.scale.setScalar(scale);
+    o.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
+    o.userData = {
+      group, home: pos.clone(), off: new THREE.Vector3(), vel: new THREE.Vector3(), base: scale,
+      phase: Math.random() * Math.PI * 2, speed: .6 + Math.random() * .6, amp: .12 + Math.random() * .12,
+      spin: new THREE.Vector3((Math.random() - .5) * .5, (Math.random() - .5) * .6, (Math.random() - .5) * .4),
+    };
+    scene.add(o); floaters.push(o);
+    return o;
+  }
+  const heroFloaters = HERO_LIST.map(([t, x, y, z, s]) => addFloater(t, new THREE.Vector3(x, y, z), s));
+  // corredor: objetos espalhados ao redor do caminho da câmera
+  const R = rng(7), types = ['ball', 'bone', 'kibble', 'yarn', 'fish', 'heart', 'collar', 'kibble'];
+  for (let i = 0; i < Q.corridorFloaters; i++) {
+    const z = lerp(-6, -22, i / Q.corridorFloaters) + (R() - .5) * 1.5;
+    const a = R() * Math.PI * 2, rad = 1.7 + R() * 2.8;
+    addFloater(types[i % types.length], new THREE.Vector3(Math.cos(a) * rad * 1.3, 1.6 + Math.sin(a) * rad * .75, z), .8 + R() * .5, 'corridor');
+  }
+
+  /* ---------- Palco dos produtos ---------- */
+  const stage = new THREE.Group(); stage.position.z = STAGE_Z; scene.add(stage);
+  const pedestal = part(puck(1.35, .42, .2), toon('#FFD9DF', { plush: true })); stage.add(pedestal);
+  stage.add(part(new THREE.TorusGeometry(1.36, .035, 8, 96), toon('#1F4E5F'), { p: [0, -.21, 0], r: [Math.PI / 2, 0, 0] }));
+  const halo = part(new THREE.TorusGeometry(2.05, .04, 8, 120), toon('#FF7A3D', { emissive: '#FF7A3D', ei: .6 }), { p: [0, 1.3, -1.4], shadow: false });
+  stage.add(halo);
+  const sparkles = [];
+  for (let i = 0; i < (IS_MOBILE ? 8 : 16); i++) {
+    const s = ball(.04 + Math.random() * .04, toon(i % 2 ? '#FF9DB6' : '#FFB25E', { emissive: i % 2 ? '#FF9DB6' : '#FFB25E', ei: .8 }),
+      [(Math.random() - .5) * 6, Math.random() * 3.5, (Math.random() - .5) * 3 - .5], 1, 1, 1, { shadow: false });
+    s.userData.y = s.position.y; s.userData.ph = Math.random() * 6; stage.add(s); sparkles.push(s);
+  }
+
+  // Cada produto: { group, tints: [materiais que mudam de cor], colors: [THREE.Color] }
+  function makeBed() {
+    const g = new THREE.Group(), tint = toon('#FF7A3D', { plush: true, unique: true });
+    g.add(part(new THREE.CylinderGeometry(1.05, .98, .3, 48), tint, { p: [0, -.2, 0] }));
+    g.add(part(new THREE.TorusGeometry(1.0, .34, 24, 72), tint, { r: [Math.PI / 2, 0, 0], s: [1, 1, .75] }));
+    g.add(ball(1, toon('#FFF1E0', { plush: true }), [0, .02, 0], .92, .2, .92));
+    g.add(part(new THREE.TorusGeometry(1.0, .028, 8, 96), toon('#FFF6EC'), { p: [0, .25, 0], r: [Math.PI / 2, 0, 0] }));
+    const bone = FL.bone(); bone.scale.setScalar(1.3); bone.position.set(.2, .26, .15); bone.rotation.set(-Math.PI / 2 + .2, 0, .6); g.add(bone);
+    return { group: g, tints: [tint], scale: .9 };
+  }
+  function makeToy() {
+    const g = new THREE.Group(), tint = toon('#FF7FA8', { rough: .4, unique: true }), knob = toon('#FFF6EC', { rough: .5 });
+    g.add(ball(.78, tint, [0, 0, 0]));
+    g.add(part(new THREE.TorusGeometry(.79, .09, 16, 72), toon('#1F4E5F'), { r: [Math.PI / 2, 0, 0] }));
+    const n = 34, ga = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < n; i++) {
+      const y = 1 - (i / (n - 1)) * 2, rr = Math.sqrt(1 - y * y), th = ga * i;
+      if (Math.abs(y) < .2) continue;
+      g.add(ball(.1, knob, [Math.cos(th) * rr * .78, y * .78, Math.sin(th) * rr * .78]));
+    }
+    [1, -1].forEach(s => g.add(part(new THREE.CylinderGeometry(.13, .13, .06, 24), toon('#2B2422'), { p: [s * .78, 0, 0], r: [0, 0, Math.PI / 2] })));
+    return { group: g, tints: [tint], scale: 1 };
+  }
+  function makeFood() {
+    const g = new THREE.Group(), tint = toon('#F2A541', { rough: .5, unique: true }), petrol = toon('#1F4E5F'), label = toon('#FFF6EC');
+    g.add(part(new RoundedBoxGeometry(1.25, 1.65, .62, 6, .16), tint));
+    g.add(part(new RoundedBoxGeometry(1.28, .2, .34, 4, .08), petrol, { p: [0, .9, 0] }));
+    g.add(part(new RoundedBoxGeometry(.95, .8, .06, 4, .03), label, { p: [0, .08, .3] }));
+    g.add(part(new RoundedBoxGeometry(.95, .14, .065, 4, .03), petrol, { p: [0, -.5, .3] }));
+    const disc = new THREE.CylinderGeometry(1, 1, .03, 24);
+    g.add(part(disc, tint, { p: [0, .02, .345], r: [Math.PI / 2, 0, 0], s: [.16, 1, .13], shadow: false }));
+    [[-.14, .16], [-.05, .24], [.05, .24], [.14, .16]].forEach(([x, y]) => g.add(part(disc, tint, { p: [x, y, .345], r: [Math.PI / 2, 0, 0], s: [.05, 1, .065], shadow: false })));
+    const bowl = new THREE.Group(); bowl.position.set(1.0, -.82, .45);
+    bowl.add(part(bowlGeo(), petrol, { s: 1.15 }));
+    const k = toon('#B5733F', { rough: .8 });
+    for (let i = 0; i < 12; i++) bowl.add(ball(.065, k, [Math.cos(i * 2.4) * .24 * ((i % 4) / 3), .22 + (i % 3) * .04, Math.sin(i * 2.4) * .24 * ((i % 4) / 3)], 1, .7, 1));
+    g.add(bowl);
+    return { group: g, tints: [tint], scale: .95 };
+  }
+  function makeCollar() {
+    const g = new THREE.Group(), tint = toon('#1F4E5F', { rough: .45, unique: true });
+    g.add(part(new THREE.TorusGeometry(.85, .12, 20, 80), tint, { s: [1, 1, 1.6] }));
+    g.add(part(new RoundedBoxGeometry(.55, .4, .3, 4, .1), toon('#123540', { rough: .3 }), { p: [0, -.86, .06] }));
+    const led = ball(.045, toon('#7CF5B4', { emissive: '#3BE38F', ei: 1.5, unique: true }), [.15, -.8, .22], 1, 1, 1, { shadow: false }); g.add(led);
+    g.add(part(new RoundedBoxGeometry(.32, .28, .3, 3, .06), toon('#F7C548', { metal: .6, rough: .28 }), { p: [0, .86, 0] }));
+    g.add(part(new THREE.TorusGeometry(.06, .018, 8, 20), toon('#F7C548', { metal: .6, rough: .28 }), { p: [0, -1.12, .06] }));
+    g.add(part(new THREE.CylinderGeometry(.17, .17, .04, 28), toon('#F7C548', { metal: .6, rough: .28 }), { p: [0, -1.32, .06], r: [Math.PI / 2, 0, 0] }));
+    return { group: g, tints: [tint], scale: 1, led };
+  }
+  const builders = [makeBed, makeToy, makeFood, makeCollar];
+  const products = PRODUCTS.map((p, i) => {
+    const m = builders[i]();
+    m.colors = p.colors.map(([, c]) => new THREE.Color(c));
+    m.tmp = new THREE.Color();
+    m.group.position.y = 1.15;
+    stage.add(m.group);
+    return m;
+  });
+
+  /* ---------- Corações (feedback ao clicar nos pets) ---------- */
+  const hearts = Array.from({ length: 8 }, () => { const h = part(heartGeo, toon('#FF6F91', { emissive: '#FF6F91', ei: .25 }), { shadow: false }); h.visible = false; scene.add(h); return h; });
+  let heartIdx = 0;
+  function popHearts(pet) {
+    const p = new THREE.Vector3(); pet.userData.head.getWorldPosition(p);
+    for (let i = 0; i < 3; i++) {
+      const h = hearts[heartIdx++ % hearts.length];
+      h.visible = true; h.position.copy(p).add(new THREE.Vector3((Math.random() - .5) * .6, .4, .3)); h.scale.setScalar(.01); h.rotation.set(0, 0, (Math.random() - .5) * .6);
+      gsap.timeline({ delay: i * .1, onComplete: () => h.visible = false })
+        .to(h.scale, { x: 1.4, y: 1.4, z: 1.4, duration: .35, ease: 'back.out(3)' })
+        .to(h.position, { y: `+=${1.3 + Math.random() * .5}`, x: `+=${(Math.random() - .5) * .8}`, duration: 1.2, ease: 'power1.out' }, 0)
+        .to(h.scale, { x: .01, y: .01, z: .01, duration: .3, ease: 'power2.in' }, .9);
+    }
+  }
+  function petJump(pet) {
+    const u = pet.userData; if (u.jumping || !HAS_GSAP) return; u.jumping = true;
+    const j = u.jump;
+    gsap.timeline({ onComplete: () => u.jumping = false })
+      .to(j.scale, { x: 1.12, y: .8, z: 1.12, duration: .12, ease: 'power2.out' })
+      .to(j.scale, { x: .92, y: 1.14, z: .92, duration: .16, ease: 'power2.out' })
+      .to(j.position, { y: .9, duration: .32, ease: 'power2.out' }, '<')
+      .to(j.rotation, { y: `+=${Math.PI * 2}`, duration: .62, ease: 'power2.inOut' }, '<')
+      .to(j.position, { y: 0, duration: .3, ease: 'power2.in' })
+      .to(j.scale, { x: 1.1, y: .86, z: 1.1, duration: .1 })
+      .to(j.scale, { x: 1, y: 1, z: 1, duration: .6, ease: 'elastic.out(1, .4)' });
+    popHearts(pet);
+  }
+
+  /* ---------- Layout responsivo + caminho da câmera ---------- */
+  const L = {};
+  let camCurve, lookCurve;
+  function layout() {
+    const aspect = innerWidth / innerHeight;
+    const narrow = innerWidth < 900 || aspect < 1;
+    L.narrow = narrow;
+    L.petsX = narrow ? 0 : 2.5;
+    // em pé: câmera mais afastada e olhando acima, deixando os pets abaixo dos botões
+    L.heroCam = narrow ? new THREE.Vector3(0, 2.4, 11.5) : new THREE.Vector3(0, 1.8, 9.5);
+    L.heroLookY = narrow ? 4.7 : 1.25;
+    L.prodX = narrow ? 0 : 1.7;
+    L.stageLookY = narrow ? -.35 : .8;
+    L.prodScale = narrow ? .72 : 1;
+    // em telas em pé, abre o FOV para caber os personagens na largura
+    camera.fov = aspect >= 1 ? 40 : Math.min(66, THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(20)) / aspect * .75)));
+    camera.aspect = aspect;
+    camera.updateProjectionMatrix();
+    pets.position.x = L.petsX;
+    // janela desktop estreita: aproxima os objetos do centro
+    const squeeze = narrow && !IS_MOBILE;
+    heroFloaters.forEach((o, i) => {
+      o.userData.home.x = HERO_LIST[i][1] * (squeeze ? .55 : 1) + L.petsX * .9;
+      o.userData.home.y = HERO_LIST[i][2] * (squeeze ? .75 : 1);
+    });
+    stage.position.x = L.prodX;
+    camCurve = new THREE.CatmullRomCurve3([
+      L.heroCam, new THREE.Vector3(.6, 3.3, 3.5), new THREE.Vector3(-.4, 2.2, -4),
+      new THREE.Vector3(.4, 1.9, -13), new THREE.Vector3(0, 2.7, STAGE_Z + 7.2),
+    ]);
+    lookCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, L.heroLookY, 0), new THREE.Vector3(.2, L.heroLookY * .8 + .3, -6), new THREE.Vector3(0, 1.5, -14),
+      new THREE.Vector3(0, 1.1, -24), new THREE.Vector3(0, L.stageLookY, STAGE_Z),
+    ]);
+  }
+  layout();
+
+  /* ---------- Pós-processamento: profundidade de campo leve (desktop) ---------- */
+  let composer = null, bokeh = null;
+  if (Q.bokeh) {
+    const rt = new THREE.WebGLRenderTarget(innerWidth * Q.dpr, innerHeight * Q.dpr, { type: THREE.HalfFloatType, samples: 4 });
+    composer = new EffectComposer(renderer, rt);
+    composer.setPixelRatio(Math.min(Q.dpr, 1.5));
+    composer.setSize(innerWidth, innerHeight);
+    composer.addPass(new RenderPass(scene, camera));
+    bokeh = new BokehPass(scene, camera, { focus: 9, aperture: .0011, maxblur: .006 });
+    composer.addPass(bokeh);
+    composer.addPass(new OutputPass());
+  }
+
+  /* ---------- Interação: hover/click nos pets ---------- */
+  const raycaster = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
+  function petUnderPointer() {
+    if (world.dollyT > .12 || !world.introDone) return null;
+    ndc.set(pointer.x, pointer.y);
+    raycaster.setFromCamera(ndc, camera);
+    const hit = raycaster.intersectObjects(characters, true)[0];
+    if (!hit) return null;
+    let o = hit.object; while (o && !o.userData.kind) o = o.parent;
+    return o;
+  }
+  addEventListener('click', e => {
+    if (e.target.closest('a, button, input, .products-ui')) return;
+    pointer.x = (e.clientX / innerWidth) * 2 - 1; pointer.y = -(e.clientY / innerHeight) * 2 + 1;
+    const pet = petUnderPointer(); if (pet) petJump(pet);
+  });
+
+  /* ---------- Loop ---------- */
+  const tmp = new THREE.Vector3(), camRight = new THREE.Vector3(), camUp = new THREE.Vector3(), look = new THREE.Vector3();
+  let frame = 0, elapsed = 0;
+  const fps = { frames: 0, time: 0, checked: false };
+
+  function update(dt) {
+    elapsed += dt; frame++;
+    const t = elapsed;
+    skyMat.uniforms.uTime.value = t;
+
+    // suaviza mouse para parallax
+    pointer.sx = damp(pointer.sx, pointer.x, 4, dt);
+    pointer.sy = damp(pointer.sy, pointer.y, 4, dt);
+
+    // progresso do dolly (scroll) suavizado
+    world.dollyT = RM ? world.dollyTarget : damp(world.dollyT, world.dollyTarget, 7, dt);
+    world.prodP = RM ? world.prodTarget : damp(world.prodP, world.prodTarget, 6, dt);
+    const dt01 = clamp(world.dollyT, 0, 1);
+
+    // câmera ao longo do caminho + parallax do mouse + leve "banking"
+    camCurve.getPointAt(dt01, camera.position);
+    lookCurve.getPointAt(dt01, look);
+    camera.lookAt(look);
+    camera.updateMatrixWorld();
+    camRight.setFromMatrixColumn(camera.matrixWorld, 0);
+    camUp.setFromMatrixColumn(camera.matrixWorld, 1);
+    const par = RM ? 0 : (L.narrow ? .25 : .45);
+    camera.position.addScaledVector(camRight, pointer.sx * par).addScaledVector(camUp, pointer.sy * par * .5);
+    camera.lookAt(look);
+    if (!RM) camera.rotateZ(Math.sin(dt01 * Math.PI) * .06);
+    sky.position.copy(camera.position);
+
+    // luz principal acompanha o ponto de interesse (uma só luz com sombra)
+    sun.target.position.copy(look);
+    sun.position.copy(look).add(tmp.set(4, 9, 6));
+
+    if (bokeh) bokeh.uniforms.focus.value = camera.position.distanceTo(look);
+
+    // personagens: respiração, olhar seguindo o mouse, rabinho, piscadas
+    characters.forEach((c, i) => {
+      const u = c.userData;
+      if (!u.jumping && !RM) u.jump.scale.y = 1 + Math.sin(t * 2.2 + i) * .012;
+      u.head.rotation.y = damp(u.head.rotation.y, pointer.sx * .55 - c.rotation.y * .4, 5, dt);
+      u.head.rotation.x = damp(u.head.rotation.x, -pointer.sy * .25, 5, dt);
+      u.head.rotation.z = RM ? 0 : Math.sin(t * 1.3 + i * 2) * .05;
+      if (!RM) {
+        if (u.kind === 'dog') { u.tail.rotation.z = Math.sin(t * (petHover ? 18 : 9)) * .6; u.ears.forEach((e, k) => e.rotation.z = (k ? .25 : -.25) + Math.sin(t * 3 + k) * .06); }
+        else { u.tail.rotation.z = Math.sin(t * 1.6) * .14; u.tail.rotation.y = Math.sin(t * 1.1) * .3; u.ears.forEach((e, k) => e.rotation.x = Math.max(0, Math.sin(t * .7 + k * 3) - .93) * 3); }
+      }
+      if (t > u.blinkAt) { const b = (t - u.blinkAt) / .16; const s = b < 1 ? Math.abs(1 - b * 2) * .9 + .1 : 1; u.eyes.forEach(e => e.scale.y = s); if (b >= 1) u.blinkAt = t + 2 + Math.random() * 4; }
+    });
+
+    // objetos flutuantes: balanço + repulsão do cursor + mola de retorno ("física leve")
+    const aspect = camera.aspect, Rr = .24;
+    floaters.forEach(o => {
+      const u = o.userData;
+      if (!RM && pointer.active) {
+        tmp.copy(u.home).add(u.off).project(camera);
+        if (tmp.z < 1) {
+          const dx = (tmp.x - pointer.x) * aspect, dy = tmp.y - pointer.y, d = Math.hypot(dx, dy);
+          if (d < Rr && d > 1e-4) { const k = (1 - d / Rr) ** 2 * 40 * dt; u.vel.addScaledVector(camRight, dx / d * k).addScaledVector(camUp, dy / d * k); }
+        }
+      }
+      u.vel.addScaledVector(u.off, -10 * dt);
+      u.vel.multiplyScalar(Math.exp(-3.2 * dt));
+      u.off.addScaledVector(u.vel, dt);
+      o.position.copy(u.home).add(u.off);
+      if (!RM) {
+        o.position.y += Math.sin(t * u.speed + u.phase) * u.amp;
+        o.rotation.x += (u.spin.x + u.vel.y * .8) * dt;
+        o.rotation.y += (u.spin.y + u.vel.x * .8) * dt;
+        o.rotation.z += u.spin.z * dt;
+      }
+    });
+
+    // hover nos pets (a cada 3 frames, só no desktop)
+    if (FINE_POINTER && frame % 3 === 0) {
+      const hov = !!petUnderPointer();
+      if (hov !== petHover) { petHover = hov; cursorEl.classList.toggle('is-hover', hov); }
+    }
+
+    // produtos: aparição/saída, giro e troca de cor guiados pelo scroll
+    const P = clamp(world.prodP, 0, PRODUCTS.length - .0001);
+    products.forEach((m, i) => {
+      let d = P - (i + .5);
+      if (i === 0 && d < 0) d = 0;
+      if (i === products.length - 1 && d > 0) d = 0;
+      const v = 1 - smooth(.32, .56, Math.abs(d));
+      m.group.visible = v > .002;
+      if (!m.group.visible) return;
+      const ease = RM ? (v > .5 ? 1 : 0) : 1 - Math.pow(1 - v, 3);
+      m.group.scale.setScalar(m.scale * L.prodScale * Math.max(.001, ease));
+      m.group.position.y = 1.15 + (RM ? 0 : Math.sin(t * 1.4 + i) * .06) + (1 - ease) * (d > 0 ? 1.2 : -1.2);
+      m.group.rotation.y = (RM ? .5 : P * Math.PI * 1.25 + t * .15) + (1 - ease) * Math.sign(d || 1) * 2;
+      m.group.rotation.x = RM ? .1 : .12 + Math.sin(t * .8 + i) * .05;
+      // cor: 3 variações ao longo do trecho do produto
+      const local = clamp(P - i, 0, .9999), f = local * m.colors.length;
+      const i0 = Math.floor(f), i1 = Math.min(i0 + 1, m.colors.length - 1), k = smooth(.72, 1, f - i0);
+      m.tmp.copy(m.colors[i0]).lerp(m.colors[i1], k);
+      m.tints.forEach(mat => mat.color.copy(m.tmp));
+      if (m.led) m.led.material.emissiveIntensity = .6 + (Math.sin(t * 5) * .5 + .5) * 2;
+    });
+    halo.rotation.z = t * .1;
+    sparkles.forEach(s => { s.position.y = s.userData.y + Math.sin(t + s.userData.ph) * .25; });
+    stage.position.y = world.exitT * 4.5;
+    stage.visible = dt01 > .3; // evita o palco "fantasma" no fundo do hero
+  }
+
+  function render(dt) {
+    if (!world.active || document.hidden) return;
+    update(dt);
+    if (composer) composer.render(dt); else renderer.render(scene, camera);
+    // qualidade adaptativa: se o FPS médio cair, desliga DOF e reduz resolução
+    if (!fps.checked && world.introDone) {
+      fps.frames++; fps.time += dt;
+      if (fps.time > 2.5) {
+        fps.checked = true;
+        const avg = fps.frames / fps.time;
+        if (avg < 45 && composer) { composer = null; bokeh = null; }
+        if (avg < 32) { renderer.setPixelRatio(1); renderer.setSize(innerWidth, innerHeight, false); }
+      }
+    }
+  }
+
+  function resize() {
+    renderer.setSize(innerWidth, innerHeight, false);
+    layout();
+    if (composer) composer.setSize(innerWidth, innerHeight);
+  }
+
+  /** Intro: pets caem com quique, objetos surgem com elástico */
+  function intro() {
+    if (!HAS_GSAP || RM) { world.introDone = true; return; }
+    characters.forEach((c, i) => gsap.from(c.userData.jump.position, { y: 5, duration: 1.1, delay: .15 + i * .18, ease: 'bounce.out' }));
+    gsap.from(platform.scale, { x: .4, y: .4, z: .4, duration: 1.2, ease: 'elastic.out(1, .5)' });
+    floaters.forEach((o, i) => gsap.from(o.scale, { x: .001, y: .001, z: .001, duration: 1.2, delay: .3 + i * .035, ease: 'back.out(2.2)' }));
+    gsap.delayedCall(1.4, () => world.introDone = true);
+  }
+
+  // pré-compila shaders para evitar engasgos no primeiro frame
+  renderer.compile(scene, camera);
+  return { render, resize, intro, renderer };
+}
+
+/* =========================================================================
+   8. CENA 3D DA CHAMADA FINAL: patinhas caindo com física leve
+   ========================================================================= */
+function createPawRain() {
+  const cv = document.getElementById('paws'), section = document.getElementById('comprar');
+  let r;
+  try { r = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true }); } catch { return null; }
+  r.setPixelRatio(Math.min(Q.dpr, 1.75));
+  r.toneMapping = THREE.NeutralToneMapping;
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(35, 1, .1, 100); cam.position.z = 14;
+  scene.add(new THREE.HemisphereLight('#FFFFFF', '#FF9DB6', 1.6));
+  const d = new THREE.DirectionalLight('#FFFFFF', 2); d.position.set(3, 6, 8); scene.add(d);
+
+  const sph = new THREE.SphereGeometry(1, 24, 18);
+  const palettes = ['#FFF6EC', '#FFC2D1', '#1F4E5F', '#FFFFFF', '#FFE6A8', '#2E6577'].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: .55 }));
+  function makePaw(mat) {
+    const g = new THREE.Group();
+    const pad = new THREE.Mesh(sph, mat); pad.scale.set(.42, .36, .2); pad.position.y = -.14; g.add(pad);
+    [[-.38, .14, -.35], [-.14, .36, -.1], [.14, .36, .1], [.38, .14, .35]].forEach(([x, y, rz]) => {
+      const toe = new THREE.Mesh(sph, mat); toe.scale.set(.13, .16, .12); toe.position.set(x, y, 0); toe.rotation.z = rz; g.add(toe);
+    });
+    return g;
+  }
+  let halfW = 8, halfH = 4.4;
+  const bodies = [];
+  const RAD = .58;
+  resize(); // calcula halfW/halfH antes de posicionar as patinhas
+  function spawn(b, x = (Math.random() * 2 - 1) * (halfW - 1), y = halfH + 1 + Math.random() * 3) {
+    b.x = x; b.y = y; b.vx = (Math.random() - .5) * 2; b.vy = -Math.random() * 2; b.rot = Math.random() * 6; b.vr = (Math.random() - .5) * 3;
+  }
+  for (let i = 0; i < Q.paws; i++) {
+    const s = IS_MOBILE ? .42 + Math.random() * .25 : .7 + Math.random() * .4;
+    const mesh = makePaw(palettes[i % palettes.length]); mesh.scale.setScalar(s); scene.add(mesh);
+    const b = { mesh, r: RAD * s, s, tilt: Math.random() * 6 };
+    spawn(b, undefined, halfH + 1 + i * .6); bodies.push(b);
+  }
+  const ptr = { x: 9999, y: 9999 };
+  function toWorld(cx, cy) {
+    const rect = cv.getBoundingClientRect();
+    return [((cx - rect.left) / rect.width * 2 - 1) * halfW, -((cy - rect.top) / rect.height * 2 - 1) * halfH];
+  }
+  section.addEventListener('pointermove', e => { [ptr.x, ptr.y] = toWorld(e.clientX, e.clientY); });
+  section.addEventListener('pointerleave', () => { ptr.x = ptr.y = 9999; });
+  let recycle = 0;
+  section.addEventListener('click', e => {
+    if (e.target.closest('a, button')) return;
+    const [wx] = toWorld(e.clientX, e.clientY);
+    for (let k = 0; k < 3; k++) { const b = bodies[recycle++ % bodies.length]; spawn(b, clamp(wx + (k - 1) * .8, -halfW + b.r, halfW - b.r), halfH + 1 + k * .7); }
+  });
+
+  function step(dt) {
+    const G = -16, sub = 2, h = dt / sub;
+    for (let s = 0; s < sub; s++) {
+      for (const b of bodies) {
+        b.vy += G * h;
+        const dx = b.x - ptr.x, dy = b.y - ptr.y, dd = Math.hypot(dx, dy);
+        if (dd < 1.8 && dd > .01) { const f = (1 - dd / 1.8) * 60 * h; b.vx += dx / dd * f; b.vy += dy / dd * f; }
+        b.x += b.vx * h; b.y += b.vy * h; b.rot += b.vr * h;
+        const floor = -halfH + b.r;
+        if (b.y < floor) { b.y = floor; b.vy *= -.32; b.vx *= .9; b.vr = -b.vx / b.r * .6; if (Math.abs(b.vy) < .4) b.vy = 0; }
+        if (b.x < -halfW + b.r) { b.x = -halfW + b.r; b.vx = Math.abs(b.vx) * .5; }
+        if (b.x > halfW - b.r) { b.x = halfW - b.r; b.vx = -Math.abs(b.vx) * .5; }
+        b.vr *= Math.exp(-1.5 * h);
+      }
+      // colisões entre patinhas (círculos) — resolução posicional + troca de impulso
+      for (let it = 0; it < 2; it++) for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) {
+        const a = bodies[i], c = bodies[j];
+        const dx = c.x - a.x, dy = c.y - a.y, min = a.r + c.r, d2 = dx * dx + dy * dy;
+        if (d2 >= min * min || d2 < 1e-6) continue;
+        const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, pen = (min - d) * .5;
+        a.x -= nx * pen; a.y -= ny * pen; c.x += nx * pen; c.y += ny * pen;
+        const rv = (c.vx - a.vx) * nx + (c.vy - a.vy) * ny;
+        if (rv < 0) { const imp = -rv * .65; a.vx -= nx * imp; a.vy -= ny * imp; c.vx += nx * imp; c.vy += ny * imp; a.vr += imp * .3; c.vr -= imp * .3; }
+      }
+    }
+  }
+  let t = 0, visible = false, dropTimer = 0;
+  function sync() {
+    bodies.forEach(b => {
+      b.mesh.position.set(b.x, b.y, Math.sin(b.tilt) * .4);
+      b.mesh.rotation.set(Math.sin(t * .8 + b.tilt) * .25 - b.vy * .03, Math.cos(t * .6 + b.tilt) * .3, b.rot);
+    });
+  }
+  function resize() {
+    const w = section.clientWidth, h = section.clientHeight;
+    r.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+    halfH = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)) * cam.position.z; halfW = halfH * cam.aspect;
+  }
+  resize();
+  if (RM) { // movimento reduzido: pré-simula e mostra as patinhas já assentadas
+    for (let i = 0; i < 600; i++) step(1 / 60);
+    sync(); r.render(scene, cam);
+  }
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0 }).observe(section);
+  return {
+    resize: () => { resize(); if (RM) { sync(); r.render(scene, cam); } },
+    render(dt) {
+      if (!visible || RM || document.hidden) return;
+      t += dt; step(Math.min(dt, 1 / 30));
+      // chuva contínua e suave: a patinha mais antiga volta a cair do topo
+      dropTimer += dt; if (dropTimer > 2.2) { dropTimer = 0; spawn(bodies[recycle++ % bodies.length]); }
+      sync(); r.render(scene, cam);
+    },
+  };
+}
+const pawRain = renderer ? createPawRain() : null;
+
+/* =========================================================================
+   9. ANIMAÇÕES DE SCROLL (GSAP + ScrollTrigger)
+   ========================================================================= */
+let productsST = null;
+function initScroll() {
+  if (!HAS_GSAP) return;
+
+  // barra de progresso de rolagem
+  const bar = document.getElementById('progress');
+  ScrollTrigger.create({ start: 0, end: 'max', onUpdate: s => bar.style.transform = `scaleX(${s.progress})` });
+
+  // menu: blur ao rolar + esconde ao descer, mostra ao subir
+  const nav = document.getElementById('nav'), waFloat = document.querySelector('.wa-float');
+  ScrollTrigger.create({
+    start: 0, end: 'max',
+    onUpdate: s => {
+      const y = s.scroll();
+      nav.classList.toggle('is-scrolled', y > 30);
+      nav.classList.toggle('is-hidden', y > 700 && s.direction === 1 && !nav.matches(':focus-within'));
+      waFloat.classList.toggle('is-visible', y > innerHeight * .8);
+    },
+  });
+
+  // hero: texto sobe e some quando o dolly começa
+  gsap.to('.hero-inner, .scroll-hint', { yPercent: -18, opacity: 0, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom 35%', scrub: true } });
+
+  // dolly da câmera: do topo do hero até o início da seção de produtos
+  ScrollTrigger.create({
+    trigger: '#hero', start: 'top top', endTrigger: '#produtos', end: 'top top', scrub: true,
+    onUpdate: s => {
+      if (RM) {
+        world.dollyTarget = s.progress < .5 ? 0 : 1;
+        document.getElementById('scene-fade').style.opacity = clamp(1 - Math.abs(s.progress - .5) * 8, 0, 1);
+      } else world.dollyTarget = s.progress;
+    },
+  });
+
+  // frase da travessia: palavras acendem com a rolagem
+  const words = document.querySelectorAll('.travessia .wi');
+  if (!RM) gsap.to(words, { opacity: 1, stagger: .1, ease: 'none', scrollTrigger: { trigger: '#travessia', start: 'top 30%', end: 'bottom 90%', scrub: true } });
+  gsap.fromTo('.travessia-sticky p', { opacity: 1 }, { opacity: 0, y: -40, ease: 'none', scrollTrigger: { trigger: '#travessia', start: 'bottom 85%', end: 'bottom 40%', scrub: true } });
+
+  // produtos: seção fixa (pin); progresso controla modelo 3D + textos
+  const slides = [...document.querySelectorAll('.product-slide')];
+  const railFills = [...document.querySelectorAll('#product-rail i')];
+  const idxEl = document.getElementById('p-idx');
+  let current = 0, currentColor = [0, 0, 0, 0];
+  gsap.fromTo('.products-ui', { opacity: 0, x: -40 }, { opacity: 1, x: 0, ease: 'none', scrollTrigger: { trigger: '#produtos', start: 'top 70%', end: 'top 10%', scrub: true } });
+  productsST = ScrollTrigger.create({
+    trigger: '#produtos', start: 'top top', end: () => '+=' + innerHeight * PRODUCTS.length * .9, pin: true, scrub: true,
+    onUpdate: s => {
+      const P = s.progress * PRODUCTS.length;
+      world.prodTarget = P;
+      const idx = clamp(Math.floor(P), 0, PRODUCTS.length - 1);
+      railFills.forEach((f, i) => f.style.transform = `scaleX(${clamp(P - i, 0, 1)})`);
+      if (idx !== current) {
+        current = idx; idxEl.textContent = String(idx + 1).padStart(2, '0');
+        slides.forEach((sl, i) => {
+          sl.classList.toggle('is-active', i === idx); sl.classList.toggle('is-before', i < idx); sl.classList.toggle('is-after', i > idx);
+          sl.inert = i !== idx;
+        });
+      }
+      // swatch ativo acompanha a troca de cor do modelo
+      const local = clamp(P - idx, 0, .9999), n = PRODUCTS[idx].colors.length, f = local * n;
+      const ci = clamp(Math.floor(f) + (f % 1 > .86 ? 1 : 0), 0, n - 1);
+      if (ci !== currentColor[idx]) {
+        currentColor[idx] = ci;
+        const sl = slides[idx];
+        sl.querySelectorAll('.swatch').forEach((sw, k) => sw.classList.toggle('is-on', k === ci));
+        sl.querySelector('.ps-swatches .label b').textContent = PRODUCTS[idx].colors[ci][0];
+      }
+    },
+  });
+  // clicar numa cor rola até o trecho correspondente
+  slides.forEach((sl, i) => sl.querySelectorAll('.swatch').forEach(sw => sw.addEventListener('click', () => {
+    const c = +sw.dataset.color, n = PRODUCTS[i].colors.length;
+    const p = (i + (c + .5) / n) / PRODUCTS.length;
+    scrollToTarget(productsST.start + (productsST.end - productsST.start) * p, { duration: 1.2 });
+  })));
+
+  // saída: a folha de categorias sobe por cima; pausa o 3D quando coberto
+  ScrollTrigger.create({
+    trigger: '#categorias', start: 'top bottom', end: 'top top', scrub: true,
+    onUpdate: s => { world.exitT = s.progress; world.active = s.progress < 1; },
+  });
+
+  // títulos de seção: revelação palavra por palavra
+  document.querySelectorAll('[data-split="words"]').forEach(el => {
+    const items = el._split.querySelectorAll('.wi');
+    if (RM) return;
+    gsap.from(items, { yPercent: 110, rotate: 6, duration: 1, ease: 'expo.out', stagger: .06, scrollTrigger: { trigger: el, start: 'top 85%', once: true } });
+  });
+
+  // blocos genéricos: fade + slide
+  if (!RM) ScrollTrigger.batch('[data-reveal]', {
+    start: 'top 88%', once: true,
+    onEnter: els => gsap.fromTo(els, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1, ease: 'expo.out', stagger: .08, overwrite: true }),
+  });
+  if (!RM) gsap.set('[data-reveal]', { opacity: 0 });
+
+  // contadores animados
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const end = parseFloat(el.dataset.count), dec = +(el.dataset.decimals || 0);
+    const fmt = v => (el.dataset.prefix || '') + v.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + (el.dataset.suffix || '');
+    if (RM) { el.textContent = fmt(end); return; }
+    const o = { v: 0 }; el.textContent = fmt(0);
+    ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true, onEnter: () => gsap.to(o, { v: end, duration: 2.2, ease: 'power3.out', onUpdate: () => el.textContent = fmt(dec ? o.v : Math.round(o.v)) }) });
+  });
+}
+
+/* =========================================================================
+   10. BOTÕES MAGNÉTICOS
+   ========================================================================= */
+function initMagnetic() {
+  if (!FINE_POINTER || RM || !HAS_GSAP) return;
+  document.querySelectorAll('.magnetic').forEach(btn => {
+    const label = btn.querySelector('.btn-label');
+    const xTo = gsap.quickTo(btn, 'x', { duration: .6, ease: 'power3.out' }), yTo = gsap.quickTo(btn, 'y', { duration: .6, ease: 'power3.out' });
+    const lx = label && gsap.quickTo(label, 'x', { duration: .6, ease: 'power3.out' }), ly = label && gsap.quickTo(label, 'y', { duration: .6, ease: 'power3.out' });
+    btn.addEventListener('pointermove', e => {
+      const r = btn.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+      xTo(dx * .35); yTo(dy * .45); if (label) { lx(dx * .15); ly(dy * .2); }
+    });
+    btn.addEventListener('pointerleave', () => {
+      gsap.to(btn, { x: 0, y: 0, duration: 1, ease: 'elastic.out(1, .35)' });
+      if (label) gsap.to(label, { x: 0, y: 0, duration: 1, ease: 'elastic.out(1, .35)' });
+    });
+  });
+}
+
+/* =========================================================================
+   11. CARDS DE CATEGORIA: tilt 3D + brilho que segue o cursor
+   ========================================================================= */
+function initTilt() {
+  if (!FINE_POINTER || RM || !HAS_GSAP) return;
+  document.querySelectorAll('.cat-card').forEach(card => {
+    const rx = gsap.quickTo(card, 'rotationX', { duration: .5, ease: 'power3.out' });
+    const ry = gsap.quickTo(card, 'rotationY', { duration: .5, ease: 'power3.out' });
+    gsap.set(card, { transformPerspective: 900 });
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+      rx((.5 - py) * 14); ry((px - .5) * 16);
+      card.style.setProperty('--mx', px * 100 + '%'); card.style.setProperty('--my', py * 100 + '%');
+    });
+    card.addEventListener('pointerleave', () => { rx(0); ry(0); });
+  });
+}
+
+/* =========================================================================
+   12. CARROSSEL DE DEPOIMENTOS (arraste com mouse/toque + inércia + snap)
+   ========================================================================= */
+function initCarousel() {
+  const root = document.getElementById('carousel'), track = document.getElementById('carousel-track');
+  const cards = [...track.children], prev = document.getElementById('t-prev'), next = document.getElementById('t-next');
+  const prog = document.getElementById('carousel-progress');
+  const st = { x: 0, min: 0, dragging: false, startX: 0, startPos: 0, vel: 0, lastX: 0, lastT: 0, moved: 0, tween: null };
+  const offsets = () => cards.map(c => c.offsetLeft - cards[0].offsetLeft);
+  const measure = () => { st.min = Math.min(0, root.clientWidth - track.scrollWidth); };
+  const apply = () => {
+    track.style.transform = `translate3d(${st.x}px,0,0)`;
+    const p = st.min ? st.x / st.min : 0;
+    prog.style.transform = `scaleX(${.2 + clamp(p, 0, 1) * .8})`;
+    prev.disabled = st.x > -2; next.disabled = st.x < st.min + 2;
+  };
+  const nearest = x => { const o = offsets().map(v => clamp(-v, st.min, 0)); return o.reduce((a, b) => Math.abs(b - x) < Math.abs(a - x) ? b : a, o[0]); };
+  const goTo = x => {
+    x = clamp(x, st.min, 0);
+    if (st.tween) st.tween.kill();
+    if (!HAS_GSAP || RM) { st.x = x; apply(); return; }
+    st.tween = gsap.to(st, { x, duration: .9, ease: 'expo.out', onUpdate: apply });
+  };
+  const step = dir => {
+    const o = offsets().map(v => clamp(-v, st.min, 0));
+    let i = o.findIndex(v => Math.abs(v - st.x) < 4); if (i < 0) i = o.indexOf(nearest(st.x));
+    goTo(o[clamp(i + dir, 0, o.length - 1)]);
+  };
+  root.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    st.dragging = true; st.startX = st.lastX = e.clientX; st.startPos = st.x; st.vel = 0; st.moved = 0; st.lastT = performance.now();
+    if (st.tween) st.tween.kill();
+    root.setPointerCapture(e.pointerId);
+  });
+  root.addEventListener('pointermove', e => {
+    if (!st.dragging) return;
+    const now = performance.now(), dx = e.clientX - st.startX;
+    st.moved = Math.max(st.moved, Math.abs(dx));
+    let x = st.startPos + dx;
+    if (x > 0) x *= .35; if (x < st.min) x = st.min + (x - st.min) * .35;   // elástico nas bordas
+    st.vel = (e.clientX - st.lastX) / Math.max(1, now - st.lastT); st.lastX = e.clientX; st.lastT = now;
+    st.x = x; apply();
+  });
+  const end = () => { if (!st.dragging) return; st.dragging = false; goTo(nearest(st.x + (RM ? 0 : st.vel * 260))); };
+  root.addEventListener('pointerup', end); root.addEventListener('pointercancel', end);
+  root.addEventListener('click', e => { if (st.moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
+  root.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { e.preventDefault(); step(1); } if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); } });
+  prev.addEventListener('click', () => step(-1)); next.addEventListener('click', () => step(1));
+  addEventListener('resize', () => { measure(); goTo(nearest(st.x)); });
+  measure(); apply();
+}
+
+/* =========================================================================
+   13. ÂNCORAS (scroll suave; "Ver produtos" faz o dolly cinematográfico)
+   ========================================================================= */
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  const id = a.getAttribute('href'); if (id === '#' ) { e.preventDefault(); return; }
+  const el = document.querySelector(id); if (!el) return;
+  e.preventDefault();
+  if (id === '#top') return scrollToTarget(0, { duration: 1.8 });
+  if (id === '#produtos' && productsST) return scrollToTarget(productsST.start + 2, { duration: 2.6, easing: t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2 });
+  scrollToTarget(el, { duration: 1.6 });
+});
+
+/* =========================================================================
+   14. LOOP ÚNICO + RESIZE
+   ========================================================================= */
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min((now - last) / 1000, 1 / 20); last = now;
+  // cursor com leve atraso (lerp)
+  if (FINE_POINTER) {
+    pointer.cx = lerp(pointer.cx, pointer.px, RM ? 1 : .32); pointer.cy = lerp(pointer.cy, pointer.py, RM ? 1 : .32);
+    cursorEl.style.transform = `translate3d(${pointer.cx}px, ${pointer.cy}px, 0)`;
+  }
+  if (main) main.render(dt);
+  if (pawRain) pawRain.render(dt);
+  requestAnimationFrame(loop);
+}
+let resizeRaf = 0;
+addEventListener('resize', () => {
+  cancelAnimationFrame(resizeRaf);
+  resizeRaf = requestAnimationFrame(() => { main?.resize(); pawRain?.resize(); HAS_GSAP && ScrollTrigger.refresh(); });
+});
+
+/* =========================================================================
+   15. BOOT: loader → intro
+   ========================================================================= */
+initScroll();
+initMagnetic();
+initTilt();
+initCarousel();
+window.__loader.set(.85);
+if (HAS_GSAP && !RM) {
+  // estado inicial do hero antes da revelação
+  gsap.set(document.querySelectorAll('#hero-title .c'), { yPercent: 115, rotate: 10 });
+  gsap.set('[data-hero-fade]', { opacity: 0, y: 24 });
+}
+if (main) main.render(1 / 60);  // primeiro frame (aquece GPU)
+requestAnimationFrame(loop);
+
+(document.fonts?.ready || Promise.resolve()).then(() => {
+  HAS_GSAP && ScrollTrigger.refresh();
+  window.__loader.set(1);
+});
+
+window.__loader.onDone(() => {
+  const loader = document.getElementById('loader');
+  const finish = () => { loader.remove(); lenis?.start(); };
+  if (!HAS_GSAP) { finish(); main?.intro(); return; }
+  const tl = gsap.timeline({ onComplete: finish });
+  tl.to('.loader-box', { scale: .9, opacity: 0, duration: .45, ease: 'power2.in' })
+    .to(loader, { yPercent: -100, duration: .9, ease: 'expo.inOut' }, '-=.1')
+    .add(() => main?.intro(), '-=.55');
+  if (!RM) {
+    tl.to(document.querySelectorAll('#hero-title .c'), { yPercent: 0, rotate: 0, duration: 1.1, ease: 'expo.out', stagger: .028 }, '-=.35')
+      .to('[data-hero-fade]', { opacity: 1, y: 0, duration: 1, ease: 'expo.out', stagger: .08 }, '-=1');
+  }
+});
+</script>
+</body>
+</html>
